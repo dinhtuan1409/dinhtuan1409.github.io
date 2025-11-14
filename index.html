@@ -462,8 +462,8 @@ noBtn.addEventListener("mouseenter", () => {
         moveNoButton(); // nhảy chỗ
     }
 
-    // Yes to lên
-    yesBtn.style.transform = "scale(1.5)";
+    yesScale += 0.4; // tăng 20% mỗi lần
+    yesBtn.style.transform = `scale(${yesScale})`;
 });
 
 // khi click Yes
