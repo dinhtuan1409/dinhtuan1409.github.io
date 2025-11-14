@@ -411,6 +411,7 @@
             }
         });
     </script>
+<!-- PHẦN 8: CÂU HỎI CUỐI -->
 <section id="final-question" class="py-24 px-6 bg-custom-light text-center">
     <div class="max-w-3xl mx-auto">
         <h2 class="font-display text-5xl md:text-6xl mb-12">Em có đồng ý yêu anh suốt đời không?</h2>
@@ -431,9 +432,8 @@ const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
 let noCounter = 0; // đếm số lần "No" bị bấm/di chuột
-let yesScale = 1; // Khởi tạo tỉ lệ ban đầu cho nút Yes
 
-// Hàm tính toán vị trí ngẫu nhiên cho No, tránh xa Yes
+// hàm tạo vị trí ngẫu nhiên cho No
 function moveNoButton() {
     const container = noBtn.parentElement;
     const containerRect = container.getBoundingClientRect();
@@ -488,24 +488,17 @@ function moveNoButton() {
     noBtn.style.top = randY + "px";
 }
 
-// Gán vị trí tuyệt đối ban đầu cho nút No để hàm moveNoButton hoạt động
-noBtn.style.position = "absolute";
-noBtn.style.right = "10px"; // Đặt vị trí ban đầu của No để nó nằm ở vị trí mặc định ban đầu
-noBtn.style.transform = "none"; // Xóa bỏ transform mặc định nếu có
-
 // khi di chuột vào No
 noBtn.addEventListener("mouseenter", () => {
     noCounter++;
 
     if(noCounter >= 5) {
-        // Lần cuối No biến mất
+        // lần cuối No biến mất
         noBtn.style.display = "none";
-        yesScale += 0.2; // tăng 20% mỗi lần
-        yesBtn.style.transform = `scale(${yesScale})`;
+        
     } else {
         moveNoButton(); // nhảy chỗ
-        // Tăng kích thước nút Yes một chút để nó hấp dẫn hơn
-        yesScale += 0.1;
+        yesScale += 0.2; // tăng 20% mỗi lần
         yesBtn.style.transform = `scale(${yesScale})`;
     }
 
@@ -515,7 +508,6 @@ noBtn.addEventListener("mouseenter", () => {
 // khi click Yes
 yesBtn.addEventListener("click", () => {
     yesBtn.textContent = "Anh biết mà ❤️";
-    // Tăng kích thước thêm khi click
     yesBtn.style.transform =  `scale(${yesScale + 0.2})`;
     noBtn.style.display = "none";
 });
