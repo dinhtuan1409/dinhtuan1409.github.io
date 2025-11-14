@@ -411,7 +411,6 @@
             }
         });
     </script>
-<!-- PHẦN 8: CÂU HỎI CUỐI -->
 <section id="final-question" class="py-24 px-6 bg-custom-light text-center">
     <div class="max-w-3xl mx-auto">
         <h2 class="font-display text-5xl md:text-6xl mb-12">Em có đồng ý yêu anh suốt đời không?</h2>
@@ -432,36 +431,82 @@ const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
 let noCounter = 0; // đếm số lần "No" bị bấm/di chuột
+let yesScale = 1; // Khởi tạo tỉ lệ ban đầu cho nút Yes
 
-// hàm tạo vị trí ngẫu nhiên cho No
+// Hàm tính toán vị trí ngẫu nhiên cho No, tránh xa Yes
 function moveNoButton() {
     const container = noBtn.parentElement;
     const containerRect = container.getBoundingClientRect();
     const btnRect = noBtn.getBoundingClientRect();
+    const yesRect = yesBtn.getBoundingClientRect();
+
+    // Vị trí Yes (tính tương đối so với container)
+    // container là phần tử cha của cả yes và no
+    const yesX = yesBtn.offsetLeft;
+    const yesY = yesBtn.offsetTop;
     
-    // tính vị trí max để nút không bị tràn ra ngoài
+    const yesWidth = yesRect.width;
+    const yesHeight = yesRect.height;
+    
+    // Vùng an toàn (khoảng cách tối thiểu từ mép nút No đến mép nút Yes)
+    // Tăng giá trị này để No di chuyển ra xa Yes hơn.
+    const safeZone = 80; 
+
+    // Các giới hạn cho vị trí ngẫu nhiên (tương đối với container)
     const maxX = containerRect.width - btnRect.width;
     const maxY = containerRect.height - btnRect.height;
 
-    const randX = Math.random() * maxX;
-    const randY = Math.random() * maxY;
+    let randX, randY;
+    let isTooClose;
 
+    // Lặp cho đến khi tìm được vị trí không nằm trong vùng an toàn
+    do {
+        randX = Math.random() * maxX;
+        randY = Math.random() * maxY;
+
+        // Tính toán khoảng cách giữa vị trí ngẫu nhiên của No và Yes
+        // Kiểm tra xem vị trí ngẫu nhiên (randX, randY) có nằm quá gần Yes không
+        
+        // Điều kiện 1: No có nằm bên trái Yes không?
+        const isLeft = randX + btnRect.width + safeZone < yesX;
+        // Điều kiện 2: No có nằm bên phải Yes không?
+        const isRight = randX > yesX + yesWidth + safeZone;
+        // Điều kiện 3: No có nằm bên trên Yes không?
+        const isAbove = randY + btnRect.height + safeZone < yesY;
+        // Điều kiện 4: No có nằm bên dưới Yes không?
+        const isBelow = randY > yesY + yesHeight + safeZone;
+
+        // Nếu No không nằm TRÁI, PHẢI, TRÊN, hoặc DƯỚI Yes với một khoảng cách an toàn,
+        // thì No đang nằm QUÁ GẦN Yes.
+        isTooClose = !(isLeft || isRight || isAbove || isBelow);
+
+    } while (isTooClose);
+
+    // Áp dụng vị trí mới
     noBtn.style.position = "absolute";
-    noBtn.style.left = 15*randX + "px";
-    noBtn.style.top = 15* randY + "px";
+    noBtn.style.left = randX + "px";
+    noBtn.style.top = randY + "px";
 }
+
+// Gán vị trí tuyệt đối ban đầu cho nút No để hàm moveNoButton hoạt động
+noBtn.style.position = "absolute";
+noBtn.style.right = "10px"; // Đặt vị trí ban đầu của No để nó nằm ở vị trí mặc định ban đầu
+noBtn.style.transform = "none"; // Xóa bỏ transform mặc định nếu có
 
 // khi di chuột vào No
 noBtn.addEventListener("mouseenter", () => {
     noCounter++;
 
     if(noCounter >= 5) {
-        // lần cuối No biến mất
+        // Lần cuối No biến mất
         noBtn.style.display = "none";
         yesScale += 0.2; // tăng 20% mỗi lần
         yesBtn.style.transform = `scale(${yesScale})`;
     } else {
         moveNoButton(); // nhảy chỗ
+        // Tăng kích thước nút Yes một chút để nó hấp dẫn hơn
+        yesScale += 0.1;
+        yesBtn.style.transform = `scale(${yesScale})`;
     }
 
    
@@ -470,6 +515,7 @@ noBtn.addEventListener("mouseenter", () => {
 // khi click Yes
 yesBtn.addEventListener("click", () => {
     yesBtn.textContent = "Anh biết mà ❤️";
+    // Tăng kích thước thêm khi click
     yesBtn.style.transform =  `scale(${yesScale + 0.2})`;
     noBtn.style.display = "none";
 });
