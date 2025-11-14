@@ -411,129 +411,66 @@
             }
         });
     </script>
-<!-- Câu hỏi cuối -->
+<!-- PHẦN 8: CÂU HỎI CUỐI -->
 <section id="final-question" class="py-24 px-6 bg-custom-light text-center">
-  <div class="max-w-3xl mx-auto">
-    <h2 class="font-display text-5xl md:text-6xl mb-12">Em có đồng ý yêu anh suốt đời không?</h2>
-    <div id="btnContainer" class="relative w-full h-40 flex justify-center items-center gap-16">
-      <button id="yesBtn" class="absolute bg-custom-accent text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">Yes ❤️</button>
-      <button id="noBtn" class="absolute bg-red-500 text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">No ❌</button>
+    <div class="max-w-3xl mx-auto">
+        <h2 class="font-display text-5xl md:text-6xl mb-12">Em có đồng ý yêu anh suốt đời không?</h2>
+        
+        <div class="relative flex justify-center gap-16 h-40 items-center">
+            <button id="yesBtn" class="bg-custom-accent text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">
+                Yes ❤️
+            </button>
+            <button id="noBtn" class="bg-red-500 text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">
+                No ❌
+            </button>
+        </div>
     </div>
-
-    <!-- Canvas trái tim 3D sẽ hiện ở đây -->
-    <div id="heartContainer" style="width:100%; height:500px; margin-top:50px;"></div>
-  </div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
-const container = document.getElementById("btnContainer");
-let noCount = 0;
-let yesScale = 1;
 
-// Nút No chạy trốn + Yes tăng size
-function randomPosition(button){
-    const maxX = container.offsetWidth - button.offsetWidth;
-    const maxY = container.offsetHeight - button.offsetHeight;
+let noCounter = 0; // đếm số lần "No" bị bấm/di chuột
+
+// hàm tạo vị trí ngẫu nhiên cho No
+function moveNoButton() {
+    const container = noBtn.parentElement;
+    const containerRect = container.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+    
+    // tính vị trí max để nút không bị tràn ra ngoài
+    const maxX = containerRect.width - btnRect.width;
+    const maxY = containerRect.height - btnRect.height;
+
     const randX = Math.random() * maxX;
     const randY = Math.random() * maxY;
-    button.style.left = randX + "px";
-    button.style.top = randY + "px";
+
+    noBtn.style.position = "absolute";
+    noBtn.style.left = randX + "px";
+    noBtn.style.top = randY + "px";
 }
 
+// khi di chuột vào No
 noBtn.addEventListener("mouseenter", () => {
-    noCount++;
-    if(noCount < 3){
-        randomPosition(noBtn);
-        yesScale += 0.3;
-        yesBtn.style.transform = `scale(${yesScale})`;
-    } else {
+    noCounter++;
+
+    if(noCounter >= 2) {
+        // lần cuối No biến mất
         noBtn.style.display = "none";
-        yesScale += 0.5;
-        yesBtn.style.transform = `scale(${yesScale})`;
-    }
-});
-
-// -----------------
-// Khi bấm Yes, hiện trái tim trong trang
-// -----------------
-const heartContainer = document.getElementById("heartContainer");
-let renderer, scene, camera, controls, heart;
-
-yesBtn.addEventListener("click", () => {
-    if(heartContainer.childElementCount === 0){
-        initHeart3D();
-    }
-});
-
-function initHeart3D() {
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(50, heartContainer.clientWidth/heartContainer.clientHeight, 0.1, 1000);
-    camera.position.z = 5;
-
-    renderer = new THREE.WebGLRenderer({antialias:true});
-    renderer.setSize(heartContainer.clientWidth, heartContainer.clientHeight);
-    heartContainer.appendChild(renderer.domElement);
-
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-
-    const material = new THREE.MeshPhysicalMaterial({
-        color: 0xff3399,
-        metalness: 0.3,
-        roughness: 0.4,
-        reflectivity: 0.6,
-        clearcoat: 0.5
-    });
-
-    const x = t => 16 * Math.pow(Math.sin(t), 3);
-    const y = t => 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
-    const shape = new THREE.Shape();
-    shape.moveTo(x(0)/16, y(0)/16);
-    for(let t = 0; t <= Math.PI*2; t += 0.01){
-        shape.lineTo(x(t)/16, y(t)/16);
-    }
-
-    const geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.5, bevelEnabled: true, bevelThickness: 0.1, bevelSize: 0.1, bevelSegments: 4 });
-    heart = new THREE.Mesh(geometry, material);
-    scene.add(heart);
-
-    const light1 = new THREE.PointLight(0xffffff,1);
-    light1.position.set(5,5,5);
-    scene.add(light1);
-    const light2 = new THREE.AmbientLight(0x404040,1);
-    scene.add(light2);
-
-    animateHeart();
-}
-
-let scale = 1;
-let growing = true;
-function animateHeart(){
-    requestAnimationFrame(animateHeart);
-    if(growing){
-        scale += 0.005;
-        if(scale >= 1.2) growing = false;
     } else {
-        scale -= 0.005;
-        if(scale <= 1.0) growing = true;
+        moveNoButton(); // nhảy chỗ
     }
-    heart.scale.set(scale, scale, scale);
-    heart.rotation.y += 0.01;
-    controls.update();
-    renderer.render(scene, camera);
-}
 
-// Resize responsive
-window.addEventListener('resize', ()=> {
-    if(camera && renderer){
-        camera.aspect = heartContainer.clientWidth/heartContainer.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(heartContainer.clientWidth, heartContainer.clientHeight);
-    }
+    yesScale += 0.2; // tăng 20% mỗi lần
+    yesBtn.style.transform = `scale(${yesScale})`;
+});
+
+// khi click Yes
+yesBtn.addEventListener("click", () => {
+    yesBtn.textContent = "Anh biết mà ❤️";
+    yesBtn.style.transform =  `scale(${yesScale + 0.2})`;
+    noBtn.style.display = "none";
 });
 </script>
 </body>
