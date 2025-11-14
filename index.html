@@ -419,18 +419,14 @@
       <button id="yesBtn" class="absolute bg-custom-accent text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">Yes ❤️</button>
       <button id="noBtn" class="absolute bg-red-500 text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">No ❌</button>
     </div>
+
+    <!-- Canvas trái tim 3D sẽ hiện ở đây -->
+    <div id="heartContainer" style="width:100%; height:500px; margin-top:50px;"></div>
   </div>
 </section>
 
-<!-- Popup 3D heart -->
-<div id="heartModal" style="display:none; position:fixed; inset:0; background:black; z-index:10000;">
-  <canvas id="heartCanvas"></canvas>
-  <button id="closeHeart" style="position:absolute; top:20px; right:20px; font-size:2rem; color:white; background:none; border:none; cursor:pointer;">&times;</button>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
-
 <script>
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
@@ -438,12 +434,7 @@ const container = document.getElementById("btnContainer");
 let noCount = 0;
 let yesScale = 1;
 
-// Vị trí ban đầu
-yesBtn.style.left = `calc(50% - ${yesBtn.offsetWidth/2}px)`;
-yesBtn.style.top = `calc(50% - ${yesBtn.offsetHeight/2}px)`;
-noBtn.style.left = `calc(60% - ${noBtn.offsetWidth/2}px)`;
-noBtn.style.top = `calc(50% - ${noBtn.offsetHeight/2}px)`;
-
+// Nút No chạy trốn + Yes tăng size
 function randomPosition(button){
     const maxX = container.offsetWidth - button.offsetWidth;
     const maxY = container.offsetHeight - button.offsetHeight;
@@ -467,33 +458,25 @@ noBtn.addEventListener("mouseenter", () => {
 });
 
 // -----------------
-// Khi bấm Yes hiện 3D Heart
+// Khi bấm Yes, hiện trái tim trong trang
 // -----------------
-const heartModal = document.getElementById("heartModal");
-const closeHeart = document.getElementById("closeHeart");
-const heartCanvas = document.getElementById("heartCanvas");
+const heartContainer = document.getElementById("heartContainer");
+let renderer, scene, camera, controls, heart;
 
 yesBtn.addEventListener("click", () => {
-    heartModal.style.display = "block";
-    initHeart3D();
+    if(heartContainer.childElementCount === 0){
+        initHeart3D();
+    }
 });
 
-closeHeart.addEventListener("click", () => {
-    heartModal.style.display = "none";
-    if(renderer) renderer.dispose();
-});
-
-// -----------------
-// Three.js 3D Heart
-// -----------------
-let renderer, scene, camera, controls, heart;
 function initHeart3D() {
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(50, heartContainer.clientWidth/heartContainer.clientHeight, 0.1, 1000);
     camera.position.z = 5;
 
-    renderer = new THREE.WebGLRenderer({antialias:true, canvas: heartCanvas});
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(heartContainer.clientWidth, heartContainer.clientHeight);
+    heartContainer.appendChild(renderer.domElement);
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -544,11 +527,12 @@ function animateHeart(){
     renderer.render(scene, camera);
 }
 
+// Resize responsive
 window.addEventListener('resize', ()=> {
     if(camera && renderer){
-        camera.aspect = window.innerWidth/window.innerHeight;
+        camera.aspect = heartContainer.clientWidth/heartContainer.clientHeight;
         camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(heartContainer.clientWidth, heartContainer.clientHeight);
     }
 });
 </script>
