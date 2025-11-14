@@ -411,66 +411,41 @@
             }
         });
     </script>
-<!-- PHẦN 8: CÂU HỎI CUỐI -->
-<section id="final-question" class="py-24 px-6 bg-custom-light text-center">
-    <div class="max-w-3xl mx-auto">
-        <h2 class="font-display text-5xl md:text-6xl mb-12">Em có đồng ý yêu anh suốt đời không?</h2>
-        
-        <div class="relative flex justify-center gap-16 h-40 items-center">
-            <button id="yesBtn" class="bg-custom-accent text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">
-                Yes ❤️
-            </button>
-            <button id="noBtn" class="bg-red-500 text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">
-                No ❌
-            </button>
-        </div>
+<section id="questionSection" class="text-center py-24">
+    <h2 class="font-display text-5xl md:text-6xl mb-12">Em có muốn tiếp tục yêu anh không?</h2>
+    <div id="btnContainer">
+        <button id="yesBtn">Yes</button>
+        <button id="noBtn">No</button>
     </div>
 </section>
 
 <script>
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
+let noCount = 0;
+let yesScale = 1;
 
-let noCounter = 0; // đếm số lần "No" bị bấm/di chuột
-
-// hàm tạo vị trí ngẫu nhiên cho No
-function moveNoButton() {
-    const container = noBtn.parentElement;
-    const containerRect = container.getBoundingClientRect();
-    const btnRect = noBtn.getBoundingClientRect();
-    
-    // tính vị trí max để nút không bị tràn ra ngoài
-    const maxX = containerRect.width - btnRect.width;
-    const maxY = containerRect.height - btnRect.height;
-
+function randomPosition(button){
+    const container = document.getElementById("btnContainer");
+    const maxX = container.offsetWidth - button.offsetWidth;
+    const maxY = container.offsetHeight - button.offsetHeight;
     const randX = Math.random() * maxX;
     const randY = Math.random() * maxY;
-
-    noBtn.style.position = "absolute";
-    noBtn.style.left = randX + "px";
-    noBtn.style.top = randY + "px";
+    button.style.left = randX + "px";
+    button.style.top = randY + "px";
 }
 
-// khi di chuột vào No
 noBtn.addEventListener("mouseenter", () => {
-    noCounter++;
-
-    if(noCounter >= 2) {
-        // lần cuối No biến mất
-        noBtn.style.display = "none";
+    noCount++;
+    if(noCount < 3){
+        randomPosition(noBtn);
+        yesScale += 0.3;
+        yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
     } else {
-        moveNoButton(); // nhảy chỗ
+        noBtn.style.display = "none";
+        yesScale += 0.5;
+        yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
     }
-
-    yesScale += 0.4; // tăng 20% mỗi lần
-    yesBtn.style.transform = `scale(${yesScale})`;
-});
-
-// khi click Yes
-yesBtn.addEventListener("click", () => {
-    yesBtn.textContent = "Anh biết mà ❤️";
-    yesBtn.style.transform = "scale(1.5)";
-    noBtn.style.display = "none";
 });
 </script>
 </body>
