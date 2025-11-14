@@ -411,11 +411,11 @@
             }
         });
     </script>
-    <!-- PHẦN 8: CÂU HỎI CUỐI -->
+<!-- PHẦN 8: CÂU HỎI CUỐI -->
 <section id="question" class="py-24 px-6 bg-custom-light">
     <div class="max-w-3xl mx-auto text-center">
         <h2 class="font-display text-5xl md:text-6xl mb-12">Em có đồng ý yêu anh không?</h2>
-        <div class="relative flex justify-center gap-12 h-40">
+        <div class="relative flex justify-center h-40">
             <button id="yesBtn" class="bg-custom-accent text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">
                 Yes ❤️
             </button>
@@ -430,27 +430,37 @@
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
 
-    let moveCount = 0;
+    let moveCount = 0; // số lần No chạy
+    const maxMoves = 2; // chạy 2 lần
 
-    // Khi bấm nút No
-    noBtn.addEventListener("mouseenter", () => {
-        if (moveCount < 2) { // lặp lại 2 lần
-            const maxX = window.innerWidth - noBtn.offsetWidth - 40;
-            const maxY = window.innerHeight - noBtn.offsetHeight - 40;
+    function moveNoButton() {
+        if (moveCount < maxMoves) {
+            const padding = 40; // để khỏi chạm viền
+            const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+            const maxY = window.innerHeight - noBtn.offsetHeight - padding;
             const randX = Math.random() * maxX;
             const randY = Math.random() * maxY;
 
             noBtn.style.left = randX + "px";
             noBtn.style.top = randY + "px";
 
-            // Nút Yes to lên mỗi lần No chạy
+            // Nút Yes to dần mỗi lần No chạy
             yesBtn.style.transform = `scale(${1 + 0.2*(moveCount+1)})`;
 
             moveCount++;
-        }
-    });
 
-    // Khi bấm Yes
+            // Lần cuối cùng, No sẽ biến mất
+            if (moveCount === maxMoves) {
+                setTimeout(() => {
+                    noBtn.style.opacity = 0;
+                    noBtn.style.pointerEvents = "none";
+                }, 300); // delay 0.3s cho smooth
+            }
+        }
+    }
+
+    noBtn.addEventListener("mouseenter", moveNoButton);
+
     yesBtn.addEventListener("click", () => {
         alert("Anh biết em sẽ chọn Yes mà ❤️");
     });
