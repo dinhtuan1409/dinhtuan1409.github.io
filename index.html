@@ -455,11 +455,11 @@ function moveNoButton() {
 noBtn.addEventListener("mouseenter", () => {
     noCounter++;
 
-    if(noCounter >= 2) {
+    if(noCounter >= 5) {
         // lần cuối No biến mất
         noBtn.style.display = "none";
-        yesScale += 0.3;
-        yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
+        yesScale += 0.2; // tăng 20% mỗi lần
+        yesBtn.style.transform = `scale(${yesScale})`;
     } else {
         moveNoButton(); // nhảy chỗ
     }
