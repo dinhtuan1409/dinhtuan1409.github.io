@@ -23,10 +23,10 @@
                         display: ['Great Vibes', 'cursive'],
                     },
                     colors: {
-                        'custom-bg': '#f0f7ff', // Màu nền xanh rất nhạt (Alice Blue)
-                        'custom-text': '#2c3e50', // Màu chữ xanh đậm (Dark Slate Blue)
-                        'custom-light': '#cfe2f3', // Màu xanh pastel nhạt
-                        'custom-accent': '#7aa8bf', // Màu xanh pastel nhấn (Medium Blue)
+                        'custom-bg': '#f0f7ff',
+                        'custom-text': '#2c3e50',
+                        'custom-light': '#cfe2f3',
+                        'custom-accent': '#7aa8bf',
                     }
                 }
             }
@@ -49,6 +49,15 @@
         .animate-bounce {
             animation: bounce 1.5s infinite;
         }
+
+        /* Kiểu cho ảnh lớn (lightbox) */
+        .lightbox-img {
+            max-height: 80vh;
+            max-width: 100%;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body class="font-sans antialiased bg-custom-bg text-custom-text">
@@ -67,7 +76,7 @@
         </div>
         
         <!-- Mũi tên cuộn xuống -->
-        <a href="#story" class="absolute bottom-10 z-10 animate-bounce">
+        <a href="#story" class="absolute bottom-10 z-10 animate-bounce" aria-label="Cuộn xuống phần câu chuyện">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
         </a>
     </section>
@@ -93,7 +102,8 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Album 1 -->
-                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
+                     onclick="openGallery('album1')" role="button" aria-label="Mở Album 1: Những Chuyến Đi">
                     <img src="https://placehold.co/600x400/7aa8bf/f0f7ff?text=Chuyen+Di" alt="Những chuyến đi" class="w-full h-64 object-cover" onerror="this.src='https://placehold.co/600x400'">
                     <div class="p-6">
                         <h3 class="text-2xl font-semibold mb-2">Album 1: Những Chuyến Đi</h3>
@@ -102,7 +112,8 @@
                 </div>
                 
                 <!-- Album 2 -->
-                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
+                     onclick="openGallery('album2')" role="button" aria-label="Mở Album 2: Góc Ẩm Thực">
                     <img src="https://placehold.co/600x400/7aa8bf/f0f7ff?text=Am+Thuc" alt="Góc ẩm thực" class="w-full h-64 object-cover" onerror="this.src='https://placehold.co/600x400'">
                     <div class="p-6">
                         <h3 class="text-2xl font-semibold mb-2">Album 2: Góc Ẩm Thực</h3>
@@ -111,7 +122,8 @@
                 </div>
                 
                 <!-- Album 3 -->
-                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
+                     onclick="openGallery('album3')" role="button" aria-label="Mở Album 3: Chỉ Là Ngày Bình Thường">
                     <img src="https://placehold.co/600x400/7aa8bf/f0f7ff?text=Ngay+Binh+Thuong" alt="Ngày bình thường" class="w-full h-64 object-cover" onerror="this.src='https://placehold.co/600x400'">
                     <div class="p-6">
                         <h3 class="text-2xl font-semibold mb-2">Album 3: Chỉ Là Ngày Bình Thường</h3>
@@ -120,7 +132,8 @@
                 </div>
                 
                 <!-- Album 4 -->
-                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
+                     onclick="openGallery('album4')" role="button" aria-label="Mở Album 4: Những Dịp Đặc Biệt">
                     <img src="https://placehold.co/600x400/7aa8bf/f0f7ff?text=Dip+Dac+Biet" alt="Dịp đặc biệt" class="w-full h-64 object-cover" onerror="this.src='https://placehold.co/600x400'">
                     <div class="p-6">
                         <h3 class="text-2xl font-semibold mb-2">Album 4: Những Dịp Đặc Biệt</h3>
@@ -129,15 +142,14 @@
                 </div>
                 
                 <!-- Album 5 -->
-                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
+                     onclick="openGallery('album5')" role="button" aria-label="Mở Album 5: Gương Mặt Thương Hiệu">
                     <img src="https://placehold.co/600x400/7aa8bf/f0f7ff?text=Guong+Mat+Thuong+Hieu" alt="Gương mặt thương hiệu" class="w-full h-64 object-cover" onerror="this.src='https://placehold.co/600x400'">
                     <div class="p-6">
                         <h3 class="text-2xl font-semibold mb-2">Album 5: Gương Mặt "Thương Hiệu"</h3>
                         <p class="text-custom-text/80">"Những bức ảnh 'phó nháy' của nhau chụp."</p>
                     </div>
                 </div>
-
-                <!-- Bạn có thể thêm Album 6 ở đây nếu muốn -->
 
             </div>
         </div>
@@ -233,6 +245,172 @@
         <p class="text-lg opacity-90">Cùng nhau, cho những hành trình tiếp theo.</p>
         <p class="mt-6 text-sm opacity-70">Tạo bởi [Tên Của Bạn] với tất cả tình yêu</p>
     </footer>
+
+    <!-- ---------------------------
+         MODAL GALLERY + LIGHTBOX
+    ---------------------------- -->
+    <div id="galleryModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-[9999] p-4" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="bg-white rounded-xl max-w-4xl w-full relative p-4 shadow-xl">
+            
+            <!-- Nút đóng -->
+            <button id="closeGalleryBtn" aria-label="Đóng" 
+                    class="absolute top-3 right-3 text-2xl font-bold text-gray-500 hover:text-black">&times;</button>
+
+            <!-- Tên album -->
+            <h3 id="albumTitle" class="text-2xl font-semibold mb-4 text-center"></h3>
+
+            <!-- Khu vực ảnh (grid của album) -->
+            <div id="albumContent" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"></div>
+
+            <!-- Vùng hiển thị ảnh lớn (lightbox) -->
+            <div id="lightbox" class="hidden fixed inset-0 z-[10000] flex items-center justify-center p-4">
+                <div class="max-w-[95%] max-h-[95%] bg-black/80 rounded-lg p-4 flex flex-col items-center justify-center">
+                    <button id="closeLightbox" aria-label="Đóng ảnh" class="self-end text-white text-2xl mb-2">&times;</button>
+                    <img id="lightboxImg" src="" alt="Ảnh lớn" class="lightbox-img rounded" />
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        /* Danh sách ảnh của từng album - thay bằng ảnh thật của bạn nếu cần */
+        const albumImages = {
+            album1: {
+                title: "Album 1: Những Chuyến Đi",
+                images: [
+                    "https://placehold.co/1200x900/7aa8bf/f0f7ff?text=Trip+1",
+                    "https://placehold.co/1200x900/cfe2f3/2c3e50?text=Trip+2",
+                    "https://placehold.co/1200x900/9fc5d8/2c3e50?text=Trip+3",
+                    "https://placehold.co/1200x900/a7d3e8/2c3e50?text=Trip+4"
+                ]
+            },
+            album2: {
+                title: "Album 2: Góc Ẩm Thực",
+                images: [
+                    "https://placehold.co/1200x900/cfe2f3/2c3e50?text=Food+1",
+                    "https://placehold.co/1200x900/7aa8bf/2c3e50?text=Food+2",
+                    "https://placehold.co/1200x900/ddeef8/2c3e50?text=Food+3"
+                ]
+            },
+            album3: {
+                title: "Album 3: Ngày Bình Thường",
+                images: [
+                    "https://placehold.co/1200x900/cfe2f3/2c3e50?text=Normal+1",
+                    "https://placehold.co/1200x900/7aa8bf/2c3e50?text=Normal+2"
+                ]
+            },
+            album4: {
+                title: "Album 4: Dịp Đặc Biệt",
+                images: [
+                    "https://placehold.co/1200x900/ffd7d7/2c3e50?text=Special+1",
+                    "https://placehold.co/1200x900/ffead4/2c3e50?text=Special+2",
+                    "https://placehold.co/1200x900/fff2cc/2c3e50?text=Special+3"
+                ]
+            },
+            album5: {
+                title: "Album 5: Gương Mặt Thương Hiệu",
+                images: [
+                    "https://placehold.co/1200x900/cfe2f3/2c3e50?text=Face+1",
+                    "https://placehold.co/1200x900/7aa8bf/2c3e50?text=Face+2",
+                    "https://placehold.co/1200x900/bae1f7/2c3e50?text=Face+3",
+                    "https://placehold.co/1200x900/e6f7ff/2c3e50?text=Face+4"
+                ]
+            }
+        };
+
+        const modal = document.getElementById("galleryModal");
+        const albumTitleEl = document.getElementById("albumTitle");
+        const albumContentEl = document.getElementById("albumContent");
+        const closeGalleryBtn = document.getElementById("closeGalleryBtn");
+        const lightbox = document.getElementById("lightbox");
+        const lightboxImg = document.getElementById("lightboxImg");
+        const closeLightboxBtn = document.getElementById("closeLightbox");
+
+        function openGallery(albumId) {
+            const data = albumImages[albumId];
+            if (!data) return;
+
+            albumTitleEl.textContent = data.title;
+            albumContentEl.innerHTML = "";
+
+            data.images.forEach(src => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "rounded overflow-hidden";
+
+                const img = document.createElement("img");
+                img.src = src;
+                img.alt = data.title;
+                img.className = "w-full h-48 object-cover rounded cursor-zoom-in";
+                img.onerror = () => img.src = "https://placehold.co/600x400";
+
+                // Khi bấm vào ảnh nhỏ -> mở lightbox ảnh lớn
+                img.addEventListener("click", (e) => {
+                    openLightbox(src);
+                });
+
+                wrapper.appendChild(img);
+                albumContentEl.appendChild(wrapper);
+            });
+
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+            modal.setAttribute("aria-hidden", "false");
+            // Khóa cuộn nền
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeGallery() {
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+            modal.setAttribute("aria-hidden", "true");
+            document.body.style.overflow = ""; // restore
+        }
+
+        closeGalleryBtn.addEventListener("click", closeGallery);
+
+        // Đóng khi click nền đen
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) closeGallery();
+        });
+
+        // Lightbox functions
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.classList.remove("hidden");
+            lightbox.classList.add("flex");
+            // disable background scroll
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeLightbox() {
+            lightbox.classList.add("hidden");
+            lightbox.classList.remove("flex");
+            lightboxImg.src = "";
+            document.body.style.overflow = ""; // restore
+        }
+
+        closeLightboxBtn.addEventListener("click", closeLightbox);
+
+        // Đóng lightbox khi click nền
+        lightbox.addEventListener("click", (e) => {
+            if (e.target === lightbox) closeLightbox();
+        });
+
+        // Đóng bằng phím ESC
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                // nếu lightbox đang mở, đóng lightbox trước
+                if (!lightbox.classList.contains("hidden")) {
+                    closeLightbox();
+                    return;
+                }
+                if (!modal.classList.contains("hidden")) {
+                    closeGallery();
+                }
+            }
+        });
+    </script>
 
 </body>
 </html>
