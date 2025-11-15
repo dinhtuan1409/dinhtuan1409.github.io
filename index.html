@@ -59,16 +59,16 @@
 <body class="font-sans antialiased bg-custom-bg text-custom-text">
 
     <audio id="backgroundMusic" autoplay loop muted>
-        <source src="music/lovesong.mp3" type="audio/mp3">
+        <source src="music/bai_nhac_ky_niem.mp3" type="audio/mp3">
         Trình duyệt của bạn không hỗ trợ phần tử audio.
     </audio>
     
     <button id="toggleMusicBtn" 
             class="fixed top-4 right-4 z-50 p-2 bg-custom-accent/80 text-white rounded-full shadow-lg hover:bg-custom-accent transition duration-200">
-        <svg id="musicOnIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <svg id="musicOnIcon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.536 7.425A1.75 1.75 0 008 8.75v3.5c0 .777.834 1.253 1.536.825l3.5-2.25a1.75 1.75 0 000-2.85l-3.5-2.25z" clip-rule="evenodd" />
         </svg>
-        <svg id="musicOffIcon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <svg id="musicOffIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.75 8a.75.75 0 00-.75.75v3.5a.75.75 0 001.5 0V9.5h1.25a.75.75 0 00.75-.75V8a.75.75 0 00-.75-.75H9.5a.75.75 0 00-.75.75zM12 11.25a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H12zM7.75 11.25a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H7.75z" />
         </svg>
     </button>
@@ -325,63 +325,78 @@
         const lightboxImg = document.getElementById("lightboxImg");
         const closeLightboxBtn = document.getElementById("closeLightbox");
         
-        // VÙNG CODE MỚI CHO AUDIO
+        // -------------------------------------
+        // VÙNG CODE XỬ LÝ AUDIO ĐÃ CẬP NHẬT
+        // -------------------------------------
         const backgroundMusic = document.getElementById('backgroundMusic');
         const toggleMusicBtn = document.getElementById('toggleMusicBtn');
         const musicOnIcon = document.getElementById('musicOnIcon');
         const musicOffIcon = document.getElementById('musicOffIcon');
-        let isMusicEnabled = false; // Theo dõi trạng thái đã bật tiếng chưa (sau tương tác)
+        let isMutedByUser = false; // Theo dõi xem người dùng có tự tắt nhạc không
 
-        // Hàm bật tiếng nhạc sau tương tác người dùng
+        // Hàm cố gắng phát nhạc ở chế độ MUTED ngay lập tức (để tránh lỗi)
+        function startMutedPlayback() {
+            backgroundMusic.play().catch(error => {
+                // Thường xảy ra nếu trình duyệt cấm luôn cả phát muted
+            });
+        }
+
+        // Hàm kích hoạt/bật tiếng nhạc sau khi người dùng tương tác
         const enableAudio = () => {
-            if (isMusicEnabled) return; // Nếu đã bật rồi thì thôi
+            if (!backgroundMusic.muted || isMutedByUser) {
+                 // Nếu đã có tiếng hoặc người dùng đã tự tắt, không làm gì
+                 return;
+            }
 
             backgroundMusic.play().then(() => {
-                backgroundMusic.muted = false; // Bật tiếng
-                isMusicEnabled = true; // Đặt trạng thái đã bật tiếng
-                // Cập nhật nút bật/tắt
+                backgroundMusic.muted = false; // BẬT TIẾNG
+                
+                // Cập nhật icon
                 musicOnIcon.classList.remove('hidden');
                 musicOffIcon.classList.add('hidden');
 
             }).catch(error => {
-                console.log("Audio playback was prevented. Music will remain muted until user manually toggles.");
+                console.log("Không thể tự động bật tiếng. Cần tương tác thêm.");
             });
             
             // Xóa bộ lắng nghe sự kiện để chỉ chạy một lần
             document.removeEventListener('click', enableAudio);
             document.removeEventListener('scroll', enableAudio);
+            document.removeEventListener('touchstart', enableAudio);
         };
 
-        // Bắt đầu phát nhạc ở chế độ MUTED ngay khi tải
-        backgroundMusic.play().catch(error => {
-             console.log("Attempting to play muted audio failed, waiting for user action.");
-        });
-
-        // Lắng nghe hành động đầu tiên của người dùng để bật tiếng
-        document.addEventListener('click', enableAudio, { once: true });
-        document.addEventListener('scroll', enableAudio, { once: true });
-
-        // Hàm xử lý nút Bật/Tắt
+        // Xử lý nút Bật/Tắt (Toggle)
         toggleMusicBtn.addEventListener('click', () => {
-            if (backgroundMusic.paused) {
-                // Nếu đang dừng, phát tiếp
+            if (backgroundMusic.muted) {
+                // Bật tiếng / Phát
+                backgroundMusic.muted = false; 
                 backgroundMusic.play();
+                isMutedByUser = false; 
+
                 musicOnIcon.classList.remove('hidden');
                 musicOffIcon.classList.add('hidden');
+
             } else {
-                // Nếu đang phát, dừng
-                backgroundMusic.pause();
+                // Tắt tiếng / Dừng
+                backgroundMusic.muted = true; 
+                backgroundMusic.pause(); 
+                isMutedByUser = true; 
+
                 musicOnIcon.classList.add('hidden');
                 musicOffIcon.classList.remove('hidden');
             }
-            // Nếu nhạc đang Muted (trước khi người dùng tương tác), hành động này sẽ kích hoạt bật tiếng
-            if (backgroundMusic.muted) {
-                backgroundMusic.muted = false;
-                isMusicEnabled = true;
-            }
         });
-        
-        // END VÙNG CODE MỚI CHO AUDIO
+
+        // Chạy hàm phát nhạc Muted khi tải trang
+        startMutedPlayback();
+
+        // Lắng nghe các hành động tương tác đầu tiên (Touch, Click, Scroll)
+        document.addEventListener('click', enableAudio, { once: true });
+        document.addEventListener('scroll', enableAudio, { once: true });
+        document.addEventListener('touchstart', enableAudio, { once: true }); // Quan trọng cho điện thoại
+        // -------------------------------------
+        // END VÙNG CODE XỬ LÝ AUDIO
+        // -------------------------------------
 
         function openGallery(albumId) {
             const data = albumImages[albumId];
@@ -397,7 +412,7 @@
                 const img = document.createElement("img");
                 img.src = src;
                 img.alt = data.title;
-                // Sửa object-contain
+                // Đã sửa: object-contain
                 img.className = "w-full h-48 **object-contain** rounded cursor-zoom-in";
                 img.onerror = () => img.src = "https://placehold.co/600x400";
 
@@ -535,7 +550,7 @@
             yesBtn.style.transform = `scale(${yesScale + 0.2})`;
             noBtn.style.display = "none";
             
-            // Tạm thời ẩn nút nhạc để tạo điểm nhấn
+            // Ẩn nút điều khiển nhạc để tạo điểm nhấn cuối cùng
             toggleMusicBtn.style.display = 'none';
         });
     </script>
