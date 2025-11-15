@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kỷ niệm 2 năm</title>
     
-    <!-- Tải Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Tải Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <!-- Cấu hình Tailwind và CSS tùy chỉnh -->
     <script>
         tailwind.config = {
             theme: {
@@ -33,7 +30,6 @@
         }
     </script>
     
-    <!-- CSS tùy chỉnh cho hiệu ứng -->
     <style>
         /* Hiệu ứng mũi tên nhấp nháy */
         @keyframes bounce {
@@ -54,7 +50,7 @@
         .lightbox-img {
             max-height: 80vh;
             max-width: 100%;
-            object-fit: contain;
+            object-fit: contain; /* Giữ tỷ lệ, không crop */
             display: block;
             margin: 0 auto;
         }
@@ -62,11 +58,25 @@
 </head>
 <body class="font-sans antialiased bg-custom-bg text-custom-text">
 
-    <!-- PHẦN 1: MÀN HÌNH CHÀO -->
+    <audio id="backgroundMusic" autoplay loop muted>
+        <source src="music/lovesong.mp3" type="audio/mp3">
+        Trình duyệt của bạn không hỗ trợ phần tử audio.
+    </audio>
+    
+    <button id="toggleMusicBtn" 
+            class="fixed top-4 right-4 z-50 p-2 bg-custom-accent/80 text-white rounded-full shadow-lg hover:bg-custom-accent transition duration-200">
+        <svg id="musicOnIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.536 7.425A1.75 1.75 0 008 8.75v3.5c0 .777.834 1.253 1.536.825l3.5-2.25a1.75 1.75 0 000-2.85l-3.5-2.25z" clip-rule="evenodd" />
+        </svg>
+        <svg id="musicOffIcon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.75 8a.75.75 0 00-.75.75v3.5a.75.75 0 001.5 0V9.5h1.25a.75.75 0 00.75-.75V8a.75.75 0 00-.75-.75H9.5a.75.75 0 00-.75.75zM12 11.25a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H12zM7.75 11.25a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H7.75z" />
+        </svg>
+    </button>
+
+
     <section id="hero" class="h-screen w-full flex flex-col justify-center items-center relative text-white" 
-             style="background-image: url('img/anh1.jpg'); background-size: cover; background-position: center;">
+             style="background-image: url('images/hero-bg.jpg'); background-size: cover; background-position: center;">
         
-        <!-- Lớp phủ mờ để làm rõ chữ -->
         <div class="absolute inset-0 bg-black/50"></div>
         
         <div class="relative z-10 text-center p-4">
@@ -75,19 +85,17 @@
             <p class="text-lg opacity-90">Ngày 10 tháng 10 năm 2022 - Ngày chúng ta bắt đầu</p>
         </div>
         
-        <!-- Mũi tên cuộn xuống -->
         <a href="#story" class="absolute bottom-10 z-10 animate-bounce" aria-label="Cuộn xuống phần câu chuyện">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
         </a>
     </section>
 
-    <!-- PHẦN 2: CÂU CHUYỆN BẮT ĐẦU -->
     <section id="story" class="py-24 px-6">
         <div class="max-w-3xl mx-auto text-center">
             <h2 class="font-display text-5xl md:text-6xl mb-8">Chuyện của chúng mình...</h2>
-            <img src="img/anh1.jpg" 
+            <img src="images/story-start.jpg" 
                  alt="Ngày đầu tiên" 
-                 class="w-full max-w-lg mx-auto rounded-lg shadow-xl mb-8"
+                 class="w-full max-w-lg mx-auto rounded-lg shadow-xl mb-8 object-contain h-auto"
                  onerror="this.src='https://placehold.co/800x600'">
             <p class="text-lg md:text-xl leading-relaxed">
                 Hai năm trước, chúng ta đã tìm thấy nhau. Mọi thứ bắt đầu thật đơn giản/bất ngờ/tình cờ, và từ đó, chúng ta đã có một hành trình thật đẹp.
@@ -95,56 +103,50 @@
         </div>
     </section>
 
-    <!-- PHẦN 3: TRIỂN LÃM KHOẢNH KHẮC -->
     <section id="gallery" class="py-24 px-6 bg-white">
         <div class="max-w-7xl mx-auto">
             <h2 class="font-display text-5xl md:text-6xl text-center mb-16">Những Mảnh Ghép Kỷ Niệm</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Album 1 -->
                 <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
                      onclick="openGallery('album1')" role="button" aria-label="Mở Album 1: Những Chuyến Đi">
-                    <img src="https://placehold.co/600x400/7aa8bf/f0f7ff?text=Chuyen+Di" alt="Những chuyến đi" class="w-full h-64 object-cover" onerror="this.src='https://placehold.co/600x400'">
+                    <img src="images/Chuyen-Di-cover.jpg" alt="Những chuyến đi" class="w-full h-64 object-contain" onerror="this.src='https://placehold.co/600x400'">
                     <div class="p-6">
                         <h3 class="text-2xl font-semibold mb-2">Album 1: Những Chuyến Đi</h3>
                         <p class="text-custom-text/80">"Chúng ta đã cùng nhau đặt chân đến..."</p>
                     </div>
                 </div>
                 
-                <!-- Album 2 -->
                 <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
                      onclick="openGallery('album2')" role="button" aria-label="Mở Album 2: Góc Ẩm Thực">
-                    <img src="https://placehold.co/600x400/7aa8bf/f0f7ff?text=Am+Thuc" alt="Góc ẩm thực" class="w-full h-64 object-cover" onerror="this.src='https://placehold.co/600x400'">
+                    <img src="images/Am-Thuc-cover.jpg" alt="Góc ẩm thực" class="w-full h-64 object-contain" onerror="this.src='https://placehold.co/600x400'">
                     <div class="p-6">
                         <h3 class="text-2xl font-semibold mb-2">Album 2: Góc Ẩm Thực</h3>
                         <p class="text-custom-text/80">"Hạnh phúc đôi khi chỉ là một bữa ăn ngon..."</p>
                     </div>
                 </div>
                 
-                <!-- Album 3 -->
                 <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
                      onclick="openGallery('album3')" role="button" aria-label="Mở Album 3: Chỉ Là Ngày Bình Thường">
-                    <img src="https://placehold.co/600x400/7aa8bf/f0f7ff?text=Ngay+Binh+Thuong" alt="Ngày bình thường" class="w-full h-64 object-cover" onerror="this.src='https://placehold.co/600x400'">
+                    <img src="images/Ngay-Binh-Thuong-cover.jpg" alt="Ngày bình thường" class="w-full h-64 object-contain" onerror="this.src='https://placehold.co/600x400'">
                     <div class="p-6">
                         <h3 class="text-2xl font-semibold mb-2">Album 3: Chỉ Là Ngày Bình Thường</h3>
                         <p class="text-custom-text/80">"Yêu cả những lúc bình yên và 'lầy lội' thế này."</p>
                     </div>
                 </div>
                 
-                <!-- Album 4 -->
                 <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
                      onclick="openGallery('album4')" role="button" aria-label="Mở Album 4: Những Dịp Đặc Biệt">
-                    <img src="https://placehold.co/600x400/7aa8bf/f0f7ff?text=Dip+Dac+Biet" alt="Dịp đặc biệt" class="w-full h-64 object-cover" onerror="this.src='https://placehold.co/600x400'">
+                    <img src="images/Dip-Dac-Biet-cover.jpg" alt="Dịp đặc biệt" class="w-full h-64 object-contain" onerror="this.src='https://placehold.co/600x400'">
                     <div class="p-6">
                         <h3 class="text-2xl font-semibold mb-2">Album 4: Những Dịp Đặc Biệt</h3>
                         <p class="text-custom-text/80">"Sinh nhật, Giáng sinh, Valentine bên nhau..."</p>
                     </div>
                 </div>
                 
-                <!-- Album 5 -->
                 <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
                      onclick="openGallery('album5')" role="button" aria-label="Mở Album 5: Gương Mặt Thương Hiệu">
-                    <img src="https://placehold.co/600x400/7aa8bf/f0f7ff?text=Guong+Mat+Thuong+Hieu" alt="Gương mặt thương hiệu" class="w-full h-64 object-cover" onerror="this.src='https://placehold.co/600x400'">
+                    <img src="images/Guong-Mat-cover.jpg" alt="Gương mặt thương hiệu" class="w-full h-64 object-contain" onerror="this.src='https://placehold.co/600x400'">
                     <div class="p-6">
                         <h3 class="text-2xl font-semibold mb-2">Album 5: Gương Mặt "Thương Hiệu"</h3>
                         <p class="text-custom-text/80">"Những bức ảnh 'phó nháy' của nhau chụp."</p>
@@ -155,25 +157,21 @@
         </div>
     </section>
 
-    <!-- PHẦN 4: HAI NĂM NHÌN LẠI -->
     <section id="then-now" class="py-24 px-6">
         <div class="max-w-5xl mx-auto text-center">
             <h2 class="font-display text-5xl md:text-6xl mb-16">Chúng ta của 2 năm</h2>
             <div class="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12">
-                <!-- Then -->
                 <div class="flex-1">
-                    <img src="https://placehold.co/600x600/cfe2f3/2c3e50?text=Buc+Anh+Dau+Tien" alt="Bức ảnh đầu tiên" class="w-full rounded-lg shadow-xl" onerror="this.src='https://placehold.co/600x600'">
+                    <img src="images/then-photo.jpg" alt="Bức ảnh đầu tiên" class="w-full rounded-lg shadow-xl object-contain h-auto" onerror="this.src='https://placehold.co/600x600'">
                     <h3 class="text-2xl font-semibold mt-6">Bức Ảnh Đầu Tiên</h3>
                 </div>
                 
-                <!-- Mũi tên so sánh -->
                 <div class="hidden md:block">
                     <svg class="w-12 h-12 text-custom-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                 </div>
                 
-                <!-- Now -->
                 <div class="flex-1">
-                    <img src="https://placehold.co/600x600/cfe2f3/2c3e50?text=Buc+Anh+Gan+Day" alt="Bức ảnh gần đây" class="w-full rounded-lg shadow-xl" onerror="this.src='https://placehold.co/600x600'">
+                    <img src="images/now-photo.jpg" alt="Bức ảnh gần đây" class="w-full rounded-lg shadow-xl object-contain h-auto" onerror="this.src='https://placehold.co/600x600'">
                     <h3 class="text-2xl font-semibold mt-6">Bức Ảnh Gần Đây</h3>
                 </div>
             </div>
@@ -183,26 +181,22 @@
         </div>
     </section>
 
-    <!-- PHẦN 5: GÓC "FUN FACTS" -->
     <section id="fun-facts" class="py-24 px-6 bg-white">
         <div class="max-w-3xl mx-auto">
             <h2 class="font-display text-5xl md:text-6xl text-center mb-16">Chỉ chúng ta mới hiểu</h2>
             <ul class="space-y-6 text-lg">
-                <!-- Icon 1: Món ăn -->
                 <li class="flex items-center bg-gray-50 p-5 rounded-lg shadow-md">
                     <svg class="w-8 h-8 mr-5 text-custom-accent flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M5.25 3A2.25 2.25 0 003 5.25v9.5A2.25 2.25 0 005.25 17h9.5A2.25 2.25 0 0017 14.75v-9.5A2.25 2.25 0 0014.75 3h-9.5zM3.75 5.25c0-.414.336-.75.75-.75h.75c.414 0 .75.336.75.75v.75c0 .414-.336.75-.75.75h-.75a.75.75 0 01-.75-.75v-.75zm2.25.75c0 .414.336.75.75.75h3.5a.75.75 0 000-1.5h-3.5a.75.75 0 00-.75.75zm0 3c0 .414.336.75.75.75h3.5a.75.75 0 000-1.5h-3.5a.75.75 0 00-.75.75zm0 3c0 .414.336.75.75.75h3.5a.75.75 0 000-1.5h-3.5a.75.75 0 00-.75.75zm9.25-5.25v.75c0 .414-.336.75-.75.75h-.75a.75.75 0 01-.75-.75v-.75c0-.414.336-.75.75-.75h.75c.414 0 .75.336.75.75zm-.75 2.25h.75c.414 0 .75.336.75.75v3.5a.75.75 0 01-1.5 0v-3.5a.75.75 0 01.75-.75z" />
                     </svg>
                     <span><strong>Món ăn cả hai cùng thích:</strong> [Điền vào đây, ví dụ: Bún chả hoặc Trà sữa]</span>
                 </li>
-                <!-- Icon 2: Phim -->
                 <li class="flex items-center bg-gray-50 p-5 rounded-lg shadow-md">
                     <svg class="w-8 h-8 mr-5 text-custom-accent flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M3.25 4A2.25 2.25 0 001 6.25v7.5A2.25 2.25 0 003.25 16h13.5A2.25 2.25 0 0019 13.75v-7.5A2.25 2.25 0 0016.75 4H3.25zM2.5 6.25c0-.414.336-.75.75-.75h13.5c.414 0 .75.336.75.75v7.5c0 .414-.336.75-.75.75H3.25a.75.75 0 01-.75-.75v-7.5zM5 8.25a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H5zM6.5 10.5a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5H7.25a.75.75 0 01-.75-.75zM5 12.75a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H5zM10.75 8a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM9.25 10.5a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H9.25zM10.75 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM15 8.25a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H15zM13.5 10.5a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM15 12.75a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H15z" />
                     </svg>
                     <span><strong>Bộ phim cả hai cùng "cày":</strong> [Điền vào đây, ví dụ: Friends hoặc một phim Hàn]</span>
                 </li>
-                <!-- Icon 3: Bài hát -->
                 <li class="flex items-center bg-gray-50 p-5 rounded-lg shadow-md">
                     <svg class="w-8 h-8 mr-5 text-custom-accent flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M7 4a3 3 0 013 3v2.066c0 1.004.607 1.89 1.503 2.302.2.092.38.204.536.338a2.5 2.5 0 01-.84 4.294A3 3 0 017 13V7a3 3 0 010-6c1.657 0 3 1.343 3 3v2.066c0 1.004.607 1.89 1.503 2.302.2.092.38.204.536.338a2.5 2.5 0 01-.84 4.294A3 3 0 017 13V7c0-1.657-1.343-3-3-3S1 5.343 1 7v6a3 3 0 003 3c1.657 0 3-1.343 3-3V7c0-1.657-1.343-3-3-3z" />
@@ -210,7 +204,6 @@
                     </svg>
                     <span><strong>Bài hát "của chúng mình":</strong> [Điền tên bài hát vào đây]</span>
                 </li>
-                <!-- Icon 4: Thói quen -->
                 <li class="flex items-center bg-gray-50 p-5 rounded-lg shadow-md">
                     <svg class="w-8 h-8 mr-5 text-custom-accent flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
@@ -221,16 +214,14 @@
         </div>
     </section>
 
-    <!-- PHẦN 6: LỜI NHẮN TỪ TRÁI TIM -->
     <section id="note" class="py-24 px-6">
         <div class="max-w-3xl mx-auto text-center">
             <h2 class="font-display text-5xl md:text-6xl mb-8">Gửi người em thương,</h2>
-            <img src="https://placehold.co/600x600/cfe2f3/2c3e50?text=Anh+Cua+Em" 
+            <img src="images/your-face.jpg" 
                  alt="Người thương" 
-                 class="w-full max-w-md mx-auto rounded-lg shadow-xl mb-10"
+                 class="w-full max-w-md mx-auto rounded-lg shadow-xl mb-10 object-contain h-auto"
                  onerror="this.src='https://placehold.co/600x600'">
             
-            <!-- Bức thư -->
             <div class="text-lg md:text-xl text-left italic leading-loose space-y-5 bg-white p-8 md:p-12 rounded-lg shadow-inner">
                 <p>Cảm ơn em vì đã luôn ở bên anh, trong cả những lúc vui vẻ lẫn khi khó khăn. Hai năm qua là một hành trình tuyệt vời, lấp đầy bởi những tiếng cười, những bài học và vô vàn yêu thương.</p>
                 <p>Điều anh yêu nhất ở em là... [Hãy viết điều bạn trân trọng nhất ở người ấy vào đây. Ví dụ: ...là nụ cười của em, là cách em quan tâm đến mọi thứ xung quanh, hoặc là sự kiên nhẫn của em với anh].</p>
@@ -239,30 +230,22 @@
         </div>
     </section>
 
-    <!-- PHẦN 7: CHÂN TRANG -->
     <footer class="py-16 bg-custom-text text-custom-bg text-center">
         <h3 class="font-display text-4xl md:text-5xl mb-4">Happy 2nd Anniversary!</h3>
         <p class="text-lg opacity-90">Cùng nhau, cho những hành trình tiếp theo.</p>
         <p class="mt-6 text-sm opacity-70">Tạo bởi [Tên Của Bạn] với tất cả tình yêu</p>
     </footer>
 
-    <!-- ---------------------------
-         MODAL GALLERY + LIGHTBOX
-    ---------------------------- -->
     <div id="galleryModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-[9999] p-4" aria-hidden="true" role="dialog" aria-modal="true">
         <div class="bg-white rounded-xl max-w-4xl w-full relative p-4 shadow-xl">
             
-            <!-- Nút đóng -->
             <button id="closeGalleryBtn" aria-label="Đóng" 
                     class="absolute top-3 right-3 text-2xl font-bold text-gray-500 hover:text-black">&times;</button>
 
-            <!-- Tên album -->
             <h3 id="albumTitle" class="text-2xl font-semibold mb-4 text-center"></h3>
 
-            <!-- Khu vực ảnh (grid của album) -->
             <div id="albumContent" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"></div>
 
-            <!-- Vùng hiển thị ảnh lớn (lightbox) -->
             <div id="lightbox" class="hidden fixed inset-0 z-[10000] flex items-center justify-center p-4">
                 <div class="max-w-[95%] max-h-[95%] bg-black/80 rounded-lg p-4 flex flex-col items-center justify-center">
                     <button id="closeLightbox" aria-label="Đóng ảnh" class="self-end text-white text-2xl mb-2">&times;</button>
@@ -273,48 +256,63 @@
         </div>
     </div>
 
+    <section id="final-question" class="py-24 px-6 bg-custom-light text-center">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="font-display text-5xl md:text-6xl mb-12">Em có đồng ý yêu anh suốt đời không?</h2>
+            
+            <div class="relative flex justify-center gap-16 h-40 items-center">
+                <button id="yesBtn" class="bg-custom-accent text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">
+                    Yes ❤️
+                </button>
+                <button id="noBtn" class="bg-red-500 text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">
+                    No ❌
+                </button>
+            </div>
+        </div>
+    </section>
+
     <script>
-        /* Danh sách ảnh của từng album - thay bằng ảnh thật của bạn nếu cần */
+        /* Danh sách ảnh của từng album - thay bằng đường dẫn tương đối của bạn */
         const albumImages = {
             album1: {
                 title: "Album 1: Những Chuyến Đi",
                 images: [
-                    "https://placehold.co/1200x900/7aa8bf/f0f7ff?text=Trip+1",
-                    "https://placehold.co/1200x900/cfe2f3/2c3e50?text=Trip+2",
-                    "https://placehold.co/1200x900/9fc5d8/2c3e50?text=Trip+3",
-                    "https://placehold.co/1200x900/a7d3e8/2c3e50?text=Trip+4"
+                    "images/trip-1.jpg", 
+                    "images/trip-2.jpg", 
+                    "images/trip-3.jpg",
+                    "images/trip-4.jpg"
                 ]
             },
             album2: {
                 title: "Album 2: Góc Ẩm Thực",
                 images: [
-                    "https://placehold.co/1200x900/cfe2f3/2c3e50?text=Food+1",
-                    "https://placehold.co/1200x900/7aa8bf/2c3e50?text=Food+2",
-                    "https://placehold.co/1200x900/ddeef8/2c3e50?text=Food+3"
+                    "images/food-1.jpg", 
+                    "images/food-2.jpg", 
+                    "images/food-3.jpg"
                 ]
             },
             album3: {
                 title: "Album 3: Ngày Bình Thường",
                 images: [
-                    "https://placehold.co/1200x900/cfe2f3/2c3e50?text=Normal+1",
-                    "https://placehold.co/1200x900/7aa8bf/2c3e50?text=Normal+2"
+                    "images/daily-1.jpg", 
+                    "images/daily-2.jpg"
                 ]
             },
             album4: {
                 title: "Album 4: Dịp Đặc Biệt",
                 images: [
-                    "https://placehold.co/1200x900/ffd7d7/2c3e50?text=Special+1",
-                    "https://placehold.co/1200x900/ffead4/2c3e50?text=Special+2",
-                    "https://placehold.co/1200x900/fff2cc/2c3e50?text=Special+3"
+                    "images/special-1.jpg", 
+                    "images/special-2.jpg", 
+                    "images/special-3.jpg"
                 ]
             },
             album5: {
                 title: "Album 5: Gương Mặt Thương Hiệu",
                 images: [
-                    "https://placehold.co/1200x900/cfe2f3/2c3e50?text=Face+1",
-                    "https://placehold.co/1200x900/7aa8bf/2c3e50?text=Face+2",
-                    "https://placehold.co/1200x900/bae1f7/2c3e50?text=Face+3",
-                    "https://placehold.co/1200x900/e6f7ff/2c3e50?text=Face+4"
+                    "images/face-1.jpg", 
+                    "images/face-2.jpg", 
+                    "images/face-3.jpg", 
+                    "images/face-4.jpg"
                 ]
             }
         };
@@ -326,6 +324,64 @@
         const lightbox = document.getElementById("lightbox");
         const lightboxImg = document.getElementById("lightboxImg");
         const closeLightboxBtn = document.getElementById("closeLightbox");
+        
+        // VÙNG CODE MỚI CHO AUDIO
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const toggleMusicBtn = document.getElementById('toggleMusicBtn');
+        const musicOnIcon = document.getElementById('musicOnIcon');
+        const musicOffIcon = document.getElementById('musicOffIcon');
+        let isMusicEnabled = false; // Theo dõi trạng thái đã bật tiếng chưa (sau tương tác)
+
+        // Hàm bật tiếng nhạc sau tương tác người dùng
+        const enableAudio = () => {
+            if (isMusicEnabled) return; // Nếu đã bật rồi thì thôi
+
+            backgroundMusic.play().then(() => {
+                backgroundMusic.muted = false; // Bật tiếng
+                isMusicEnabled = true; // Đặt trạng thái đã bật tiếng
+                // Cập nhật nút bật/tắt
+                musicOnIcon.classList.remove('hidden');
+                musicOffIcon.classList.add('hidden');
+
+            }).catch(error => {
+                console.log("Audio playback was prevented. Music will remain muted until user manually toggles.");
+            });
+            
+            // Xóa bộ lắng nghe sự kiện để chỉ chạy một lần
+            document.removeEventListener('click', enableAudio);
+            document.removeEventListener('scroll', enableAudio);
+        };
+
+        // Bắt đầu phát nhạc ở chế độ MUTED ngay khi tải
+        backgroundMusic.play().catch(error => {
+             console.log("Attempting to play muted audio failed, waiting for user action.");
+        });
+
+        // Lắng nghe hành động đầu tiên của người dùng để bật tiếng
+        document.addEventListener('click', enableAudio, { once: true });
+        document.addEventListener('scroll', enableAudio, { once: true });
+
+        // Hàm xử lý nút Bật/Tắt
+        toggleMusicBtn.addEventListener('click', () => {
+            if (backgroundMusic.paused) {
+                // Nếu đang dừng, phát tiếp
+                backgroundMusic.play();
+                musicOnIcon.classList.remove('hidden');
+                musicOffIcon.classList.add('hidden');
+            } else {
+                // Nếu đang phát, dừng
+                backgroundMusic.pause();
+                musicOnIcon.classList.add('hidden');
+                musicOffIcon.classList.remove('hidden');
+            }
+            // Nếu nhạc đang Muted (trước khi người dùng tương tác), hành động này sẽ kích hoạt bật tiếng
+            if (backgroundMusic.muted) {
+                backgroundMusic.muted = false;
+                isMusicEnabled = true;
+            }
+        });
+        
+        // END VÙNG CODE MỚI CHO AUDIO
 
         function openGallery(albumId) {
             const data = albumImages[albumId];
@@ -341,7 +397,8 @@
                 const img = document.createElement("img");
                 img.src = src;
                 img.alt = data.title;
-                img.className = "w-full h-48 object-cover rounded cursor-zoom-in";
+                // Sửa object-contain
+                img.className = "w-full h-48 **object-contain** rounded cursor-zoom-in";
                 img.onerror = () => img.src = "https://placehold.co/600x400";
 
                 // Khi bấm vào ảnh nhỏ -> mở lightbox ảnh lớn
@@ -387,13 +444,17 @@
             lightbox.classList.add("hidden");
             lightbox.classList.remove("flex");
             lightboxImg.src = "";
-            document.body.style.overflow = ""; // restore
+            // Chỉ restore scroll nếu modal gallery cũng đóng
+            if (modal.classList.contains("hidden")) {
+                document.body.style.overflow = ""; 
+            }
         }
 
         closeLightboxBtn.addEventListener("click", closeLightbox);
 
         // Đóng lightbox khi click nền
         lightbox.addEventListener("click", (e) => {
+            if (e.target === lightbox.querySelector('.max-w-\\[95\\%\\]')) return; // Bỏ qua nếu click vào khung ảnh
             if (e.target === lightbox) closeLightbox();
         });
 
@@ -410,107 +471,73 @@
                 }
             }
         });
+
+        // CODE HIỆU ỨNG NÚT "NO"
+        const yesBtn = document.getElementById("yesBtn");
+        const noBtn = document.getElementById("noBtn");
+
+        let noCounter = 0; 
+        let yesScale = 1;
+
+        function moveNoButton() {
+            const container = noBtn.parentElement;
+            const containerRect = container.getBoundingClientRect();
+            const btnRect = noBtn.getBoundingClientRect();
+            const yesRect = yesBtn.getBoundingClientRect();
+
+            const yesX = yesBtn.offsetLeft;
+            const yesY = yesBtn.offsetTop;
+            
+            const yesWidth = yesRect.width;
+            const yesHeight = yesRect.height;
+            
+            const safeZone = 80; 
+
+            const maxX = containerRect.width - btnRect.width;
+            const maxY = containerRect.height - btnRect.height;
+
+            let randX, randY;
+            let isTooClose;
+
+            do {
+                randX = Math.random() * maxX;
+                randY = Math.random() * maxY;
+
+                const isLeft = randX + btnRect.width + safeZone < yesX;
+                const isRight = randX > yesX + yesWidth + safeZone;
+                const isAbove = randY + btnRect.height + safeZone < yesY;
+                const isBelow = randY > yesY + yesHeight + safeZone;
+
+                isTooClose = !(isLeft || isRight || isAbove || isBelow);
+
+            } while (isTooClose || randX < 0 || randY < 0); // Đảm bảo không nằm ngoài khung
+
+            noBtn.style.position = "absolute";
+            noBtn.style.left = randX + "px";
+            noBtn.style.top = randY + "px";
+        }
+
+        noBtn.addEventListener("mouseenter", () => {
+            noCounter++;
+
+            if(noCounter >= 5) {
+                noBtn.style.display = "none";
+                
+            } else {
+                moveNoButton();
+                yesScale += 0.2;
+                yesBtn.style.transform = `scale(${yesScale})`;
+            }
+        });
+
+        yesBtn.addEventListener("click", () => {
+            yesBtn.textContent = "Anh biết mà ❤️";
+            yesBtn.style.transform = `scale(${yesScale + 0.2})`;
+            noBtn.style.display = "none";
+            
+            // Tạm thời ẩn nút nhạc để tạo điểm nhấn
+            toggleMusicBtn.style.display = 'none';
+        });
     </script>
-<!-- PHẦN 8: CÂU HỎI CUỐI -->
-<section id="final-question" class="py-24 px-6 bg-custom-light text-center">
-    <div class="max-w-3xl mx-auto">
-        <h2 class="font-display text-5xl md:text-6xl mb-12">Em có đồng ý yêu anh suốt đời không?</h2>
-        
-        <div class="relative flex justify-center gap-16 h-40 items-center">
-            <button id="yesBtn" class="bg-custom-accent text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">
-                Yes ❤️
-            </button>
-            <button id="noBtn" class="bg-red-500 text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">
-                No ❌
-            </button>
-        </div>
-    </div>
-</section>
-
-<script>
-const yesBtn = document.getElementById("yesBtn");
-const noBtn = document.getElementById("noBtn");
-
-let noCounter = 0; // đếm số lần "No" bị bấm/di chuột
-
-// hàm tạo vị trí ngẫu nhiên cho No
-function moveNoButton() {
-    const container = noBtn.parentElement;
-    const containerRect = container.getBoundingClientRect();
-    const btnRect = noBtn.getBoundingClientRect();
-    const yesRect = yesBtn.getBoundingClientRect();
-
-    // Vị trí Yes (tính tương đối so với container)
-    // container là phần tử cha của cả yes và no
-    const yesX = yesBtn.offsetLeft;
-    const yesY = yesBtn.offsetTop;
-    
-    const yesWidth = yesRect.width;
-    const yesHeight = yesRect.height;
-    
-    // Vùng an toàn (khoảng cách tối thiểu từ mép nút No đến mép nút Yes)
-    // Tăng giá trị này để No di chuyển ra xa Yes hơn.
-    const safeZone = 80; 
-
-    // Các giới hạn cho vị trí ngẫu nhiên (tương đối với container)
-    const maxX = containerRect.width - btnRect.width;
-    const maxY = containerRect.height - btnRect.height;
-
-    let randX, randY;
-    let isTooClose;
-
-    // Lặp cho đến khi tìm được vị trí không nằm trong vùng an toàn
-    do {
-        randX = Math.random() * maxX;
-        randY = Math.random() * maxY;
-
-        // Tính toán khoảng cách giữa vị trí ngẫu nhiên của No và Yes
-        // Kiểm tra xem vị trí ngẫu nhiên (randX, randY) có nằm quá gần Yes không
-        
-        // Điều kiện 1: No có nằm bên trái Yes không?
-        const isLeft = randX + btnRect.width + safeZone < yesX;
-        // Điều kiện 2: No có nằm bên phải Yes không?
-        const isRight = randX > yesX + yesWidth + safeZone;
-        // Điều kiện 3: No có nằm bên trên Yes không?
-        const isAbove = randY + btnRect.height + safeZone < yesY;
-        // Điều kiện 4: No có nằm bên dưới Yes không?
-        const isBelow = randY > yesY + yesHeight + safeZone;
-
-        // Nếu No không nằm TRÁI, PHẢI, TRÊN, hoặc DƯỚI Yes với một khoảng cách an toàn,
-        // thì No đang nằm QUÁ GẦN Yes.
-        isTooClose = !(isLeft || isRight || isAbove || isBelow);
-
-    } while (isTooClose);
-
-    // Áp dụng vị trí mới
-    noBtn.style.position = "absolute";
-    noBtn.style.left = randX + "px";
-    noBtn.style.top = randY + "px";
-}
-
-// khi di chuột vào No
-noBtn.addEventListener("mouseenter", () => {
-    noCounter++;
-
-    if(noCounter >= 5) {
-        // lần cuối No biến mất
-        noBtn.style.display = "none";
-        
-    } else {
-        moveNoButton(); // nhảy chỗ
-        yesScale += 0.2; // tăng 20% mỗi lần
-        yesBtn.style.transform = `scale(${yesScale})`;
-    }
-
-   
-});
-
-// khi click Yes
-yesBtn.addEventListener("click", () => {
-    yesBtn.textContent = "Anh biết mà ❤️";
-    yesBtn.style.transform =  `scale(${yesScale + 0.2})`;
-    noBtn.style.display = "none";
-});
-</script>
 </body>
 </html>
