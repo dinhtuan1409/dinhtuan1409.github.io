@@ -286,7 +286,7 @@
                     { src: "video/video13.mp4", type: "video" }, 
                     { src: "video/video8.mp4", type: "video" },
                     { src: "img/38.jpg", type: "image" }, 
-                    { src: "img/18.jpg", type: "image" }
+                    { src: "img/anh18.jpg", type: "image" }
                 ]
             },
             // CÁC ALBUM KHÁC ĐƯỢC CHUYỂN SANG CẤU TRÚC MỚI (CHỈ CHỨA IMAGE)
@@ -430,7 +430,6 @@
                     playIcon.className = "absolute inset-0 flex items-center justify-center pointer-events-none bg-black/30 group-hover:bg-black/50 transition duration-300 rounded";
 
                     wrapper.appendChild(videoThumbnail);
-                    wrapper.appendChild(playIcon);
 
                     // Tự động phát/dừng video thumbnail khi scroll (tối ưu hiệu năng)
                     const observer = new IntersectionObserver((entries) => {
