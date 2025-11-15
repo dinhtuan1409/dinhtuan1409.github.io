@@ -46,13 +46,13 @@
             animation: bounce 1.5s infinite;
         }
 
-        /* Kiểu cho ảnh lớn (lightbox) */
-        .lightbox-img {
+        /* Kiểu cho ảnh lớn và video (lightbox) */
+        .lightbox-content {
             max-height: 80vh;
-            max-width: 100%;
-            object-fit: contain; /* Giữ tỷ lệ, không crop */
+            max-width: 95vw; /* Giới hạn để phù hợp với màn hình */
             display: block;
             margin: 0 auto;
+            object-fit: contain; /* Giữ tỷ lệ, không crop */
         }
     </style>
 </head>
@@ -96,7 +96,7 @@
             <img src="images/story-start.jpg" 
                  alt="Ngày đầu tiên" 
                  class="w-full max-w-lg mx-auto rounded-lg shadow-xl mb-8 object-contain h-auto"
-                 onerror="this.src='https://placehold.co/800x600'">
+                 onerror="this.src='img/anh10.jpg'">
             <p class="text-lg md:text-xl leading-relaxed">
                 Hai năm trước, chúng ta đã tìm thấy nhau. Mọi thứ bắt đầu thật đơn giản/bất ngờ/tình cờ, và từ đó, chúng ta đã có một hành trình thật đẹp.
             </p>
@@ -112,7 +112,7 @@
                      onclick="openGallery('album1')" role="button" aria-label="Mở Album 1: Những Chuyến Đi">
                     <img src="images/Chuyen-Di-cover.jpg" alt="Những chuyến đi" class="w-full h-64 object-contain" onerror="this.src='https://placehold.co/600x400'">
                     <div class="p-6">
-                        <h3 class="text-2xl font-semibold mb-2">Album 1: Những Chuyến Đi</h3>
+                        <h3 class="text-2xl font-semibold mb-2">Album 1: Những Chuyến Đi (Có Video)</h3>
                         <p class="text-custom-text/80">"Chúng ta đã cùng nhau đặt chân đến..."</p>
                     </div>
                 </div>
@@ -248,8 +248,11 @@
 
             <div id="lightbox" class="hidden fixed inset-0 z-[10000] flex items-center justify-center p-4">
                 <div class="max-w-[95%] max-h-[95%] bg-black/80 rounded-lg p-4 flex flex-col items-center justify-center">
-                    <button id="closeLightbox" aria-label="Đóng ảnh" class="self-end text-white text-2xl mb-2">&times;</button>
-                    <img id="lightboxImg" src="" alt="Ảnh lớn" class="lightbox-img rounded" />
+                    <button id="closeLightbox" aria-label="Đóng nội dung" class="self-end text-white text-2xl mb-2">&times;</button>
+                    <div id="lightboxContentWrapper" class="flex items-center justify-center">
+                        <img id="lightboxImg" src="" alt="Ảnh lớn" class="lightbox-content rounded hidden" />
+                        <video id="lightboxVideo" src="" controls class="lightbox-content rounded hidden"></video>
+                    </div>
                 </div>
             </div>
 
@@ -272,47 +275,50 @@
     </section>
 
     <script>
-        /* Danh sách ảnh của từng album - thay bằng đường dẫn tương đối của bạn */
+        /* Danh sách nội dung của từng album - Cấu trúc MỚI hỗ trợ cả ảnh và video */
         const albumImages = {
+            // ALBUM 1 ĐÃ ĐƯỢC CẬP NHẬT: 1 Video + 3 Ảnh
             album1: {
                 title: "Album 1: Những Chuyến Đi",
-                images: [
-                    "images/trip-1.jpg", 
-                    "images/trip-2.jpg", 
-                    "images/trip-3.jpg",
-                    "images/trip-4.jpg"
+                items: [
+                    // Giả định video
+                    { src: "images/trip-video.mp4", type: "video" }, 
+                    { src: "images/trip-1.jpg", type: "image" }, 
+                    { src: "images/trip-2.jpg", type: "image" },
+                    { src: "images/trip-3.jpg", type: "image" }
                 ]
             },
+            // CÁC ALBUM KHÁC ĐƯỢC CHUYỂN SANG CẤU TRÚC MỚI (CHỈ CHỨA IMAGE)
             album2: {
                 title: "Album 2: Góc Ẩm Thực",
-                images: [
-                    "images/food-1.jpg", 
-                    "images/food-2.jpg", 
-                    "images/food-3.jpg"
+                items: [
+                    { src: "images/food-1.jpg", type: "image" }, 
+                    { src: "images/food-2.jpg", type: "image" }, 
+                    { src: "images/food-3.jpg", type: "image" }
                 ]
             },
             album3: {
                 title: "Album 3: Ngày Bình Thường",
-                images: [
-                    "images/daily-1.jpg", 
-                    "images/daily-2.jpg"
+                items: [
+                    { src: "images/daily-1.jpg", type: "image" }, 
+                    { src: "images/daily-2.jpg", type: "image" }
                 ]
             },
             album4: {
                 title: "Album 4: Dịp Đặc Biệt",
-                images: [
-                    "images/special-1.jpg", 
-                    "images/special-2.jpg", 
-                    "images/special-3.jpg"
+                items: [
+                    { src: "images/special-1.jpg", type: "image" }, 
+                    { src: "images/special-2.jpg", type: "image" }, 
+                    { src: "images/special-3.jpg", type: "image" }
                 ]
             },
             album5: {
                 title: "Album 5: Gương Mặt Thương Hiệu",
-                images: [
-                    "images/face-1.jpg", 
-                    "images/face-2.jpg", 
-                    "images/face-3.jpg", 
-                    "images/face-4.jpg"
+                items: [
+                    { src: "images/face-1.jpg", type: "image" }, 
+                    { src: "images/face-2.jpg", type: "image" }, 
+                    { src: "images/face-3.jpg", type: "image" }, 
+                    { src: "images/face-4.jpg", type: "image" }
                 ]
             }
         };
@@ -322,82 +328,70 @@
         const albumContentEl = document.getElementById("albumContent");
         const closeGalleryBtn = document.getElementById("closeGalleryBtn");
         const lightbox = document.getElementById("lightbox");
+        // Đã thêm lightboxVideo
         const lightboxImg = document.getElementById("lightboxImg");
+        const lightboxVideo = document.getElementById("lightboxVideo");
         const closeLightboxBtn = document.getElementById("closeLightbox");
         
-        // -------------------------------------
-        // VÙNG CODE XỬ LÝ AUDIO ĐÃ CẬP NHẬT
-        // -------------------------------------
+        // Audio elements (Giữ nguyên)
         const backgroundMusic = document.getElementById('backgroundMusic');
         const toggleMusicBtn = document.getElementById('toggleMusicBtn');
         const musicOnIcon = document.getElementById('musicOnIcon');
         const musicOffIcon = document.getElementById('musicOffIcon');
-        let isMutedByUser = false; // Theo dõi xem người dùng có tự tắt nhạc không
+        let isMutedByUser = false; 
 
-        // Hàm cố gắng phát nhạc ở chế độ MUTED ngay lập tức (để tránh lỗi)
+        // -------------------------------------
+        // VÙNG CODE XỬ LÝ AUDIO (Giữ nguyên)
+        // -------------------------------------
+
         function startMutedPlayback() {
-            backgroundMusic.play().catch(error => {
-                // Thường xảy ra nếu trình duyệt cấm luôn cả phát muted
-            });
+            backgroundMusic.play().catch(error => {});
         }
 
-        // Hàm kích hoạt/bật tiếng nhạc sau khi người dùng tương tác
         const enableAudio = () => {
             if (!backgroundMusic.muted || isMutedByUser) {
-                 // Nếu đã có tiếng hoặc người dùng đã tự tắt, không làm gì
-                 return;
+                return;
             }
 
             backgroundMusic.play().then(() => {
-                backgroundMusic.muted = false; // BẬT TIẾNG
-                
-                // Cập nhật icon
+                backgroundMusic.muted = false; 
                 musicOnIcon.classList.remove('hidden');
                 musicOffIcon.classList.add('hidden');
-
             }).catch(error => {
                 console.log("Không thể tự động bật tiếng. Cần tương tác thêm.");
             });
             
-            // Xóa bộ lắng nghe sự kiện để chỉ chạy một lần
             document.removeEventListener('click', enableAudio);
             document.removeEventListener('scroll', enableAudio);
             document.removeEventListener('touchstart', enableAudio);
         };
 
-        // Xử lý nút Bật/Tắt (Toggle)
         toggleMusicBtn.addEventListener('click', () => {
             if (backgroundMusic.muted) {
-                // Bật tiếng / Phát
                 backgroundMusic.muted = false; 
                 backgroundMusic.play();
                 isMutedByUser = false; 
-
                 musicOnIcon.classList.remove('hidden');
                 musicOffIcon.classList.add('hidden');
-
             } else {
-                // Tắt tiếng / Dừng
                 backgroundMusic.muted = true; 
                 backgroundMusic.pause(); 
                 isMutedByUser = true; 
-
                 musicOnIcon.classList.add('hidden');
                 musicOffIcon.classList.remove('hidden');
             }
         });
 
-        // Chạy hàm phát nhạc Muted khi tải trang
         startMutedPlayback();
-
-        // Lắng nghe các hành động tương tác đầu tiên (Touch, Click, Scroll)
         document.addEventListener('click', enableAudio, { once: true });
         document.addEventListener('scroll', enableAudio, { once: true });
-        document.addEventListener('touchstart', enableAudio, { once: true }); // Quan trọng cho điện thoại
+        document.addEventListener('touchstart', enableAudio, { once: true }); 
         // -------------------------------------
         // END VÙNG CODE XỬ LÝ AUDIO
         // -------------------------------------
 
+
+        // HÀM MỞ GALLERY ĐÃ ĐƯỢC CẬP NHẬT ĐỂ XỬ LÝ CẢ IMAGE VÀ VIDEO
         function openGallery(albumId) {
             const data = albumImages[albumId];
             if (!data) return;
@@ -405,30 +399,57 @@
             albumTitleEl.textContent = data.title;
             albumContentEl.innerHTML = "";
 
-            data.images.forEach(src => {
+            data.items.forEach(item => {
                 const wrapper = document.createElement("div");
-                wrapper.className = "rounded overflow-hidden";
+                wrapper.className = "rounded overflow-hidden relative group"; // Thêm relative và group
 
-                const img = document.createElement("img");
-                img.src = src;
-                img.alt = data.title;
-                // Đã sửa: object-contain
-                img.className = "w-full h-48 **object-contain** rounded cursor-zoom-in";
-                img.onerror = () => img.src = "https://placehold.co/600x400";
+                if (item.type === 'image') {
+                    const img = document.createElement("img");
+                    img.src = item.src;
+                    img.alt = data.title;
+                    img.className = "w-full h-48 object-contain rounded cursor-zoom-in";
+                    img.onerror = () => img.src = "https://placehold.co/600x400";
+                    img.addEventListener("click", () => openLightbox(item.src, 'image'));
+                    wrapper.appendChild(img);
+                
+                } else if (item.type === 'video') {
+                    const videoThumbnail = document.createElement("video");
+                    videoThumbnail.src = item.src;
+                    videoThumbnail.controls = false; 
+                    videoThumbnail.autoplay = false;
+                    videoThumbnail.loop = true;
+                    videoThumbnail.muted = true; 
+                    videoThumbnail.preload = 'metadata'; 
+                    videoThumbnail.className = "w-full h-48 object-contain rounded cursor-zoom-in";
+                    videoThumbnail.addEventListener("click", () => openLightbox(item.src, 'video'));
+                    
+                    // Thêm icon play lên trên video
+                    const playIcon = document.createElement('div');
+                    playIcon.innerHTML = `<svg class="w-12 h-12 text-white/80 group-hover:text-white transition duration-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.536 7.425A1.75 1.75 0 008 8.75v3.5c0 .777.834 1.253 1.536.825l3.5-2.25a1.75 1.75 0 000-2.85l-3.5-2.25z" /></svg>`;
+                    playIcon.className = "absolute inset-0 flex items-center justify-center pointer-events-none bg-black/30 group-hover:bg-black/50 transition duration-300 rounded";
 
-                // Khi bấm vào ảnh nhỏ -> mở lightbox ảnh lớn
-                img.addEventListener("click", (e) => {
-                    openLightbox(src);
-                });
+                    wrapper.appendChild(videoThumbnail);
+                    wrapper.appendChild(playIcon);
 
-                wrapper.appendChild(img);
+                    // Tự động phát/dừng video thumbnail khi scroll (tối ưu hiệu năng)
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                videoThumbnail.play();
+                            } else {
+                                videoThumbnail.pause();
+                            }
+                        });
+                    }, { threshold: 0.5 });
+                    observer.observe(wrapper);
+                }
+
                 albumContentEl.appendChild(wrapper);
             });
 
             modal.classList.remove("hidden");
             modal.classList.add("flex");
             modal.setAttribute("aria-hidden", "false");
-            // Khóa cuộn nền
             document.body.style.overflow = "hidden";
         }
 
@@ -440,43 +461,54 @@
         }
 
         closeGalleryBtn.addEventListener("click", closeGallery);
-
-        // Đóng khi click nền đen
         modal.addEventListener("click", (e) => {
             if (e.target === modal) closeGallery();
         });
 
-        // Lightbox functions
-        function openLightbox(src) {
-            lightboxImg.src = src;
+        // HÀM MỞ LIGHTBOX ĐÃ ĐƯỢC CẬP NHẬT ĐỂ XỬ LÝ CẢ IMAGE VÀ VIDEO
+        function openLightbox(src, type) {
+            // Reset
+            lightboxImg.classList.add('hidden');
+            lightboxVideo.classList.add('hidden');
+            lightboxVideo.pause(); // Đảm bảo dừng video cũ
+
+            if (type === 'image') {
+                lightboxImg.src = src;
+                lightboxImg.classList.remove('hidden');
+            } else if (type === 'video') {
+                lightboxVideo.src = src;
+                lightboxVideo.controls = true;
+                lightboxVideo.classList.remove('hidden');
+                lightboxVideo.play(); // Bắt đầu phát video
+            }
+
             lightbox.classList.remove("hidden");
             lightbox.classList.add("flex");
-            // disable background scroll
             document.body.style.overflow = "hidden";
         }
 
         function closeLightbox() {
             lightbox.classList.add("hidden");
             lightbox.classList.remove("flex");
+            
+            // Dọn dẹp nội dung lightbox
+            lightboxVideo.pause(); 
             lightboxImg.src = "";
-            // Chỉ restore scroll nếu modal gallery cũng đóng
+            lightboxVideo.src = "";
+
             if (modal.classList.contains("hidden")) {
                 document.body.style.overflow = ""; 
             }
         }
 
         closeLightboxBtn.addEventListener("click", closeLightbox);
-
-        // Đóng lightbox khi click nền
         lightbox.addEventListener("click", (e) => {
-            if (e.target === lightbox.querySelector('.max-w-\\[95\\%\\]')) return; // Bỏ qua nếu click vào khung ảnh
+            if (e.target === lightbox.querySelector('.max-w-\\[95\\%\\]')) return;
             if (e.target === lightbox) closeLightbox();
         });
 
-        // Đóng bằng phím ESC
         document.addEventListener("keydown", (e) => {
             if (e.key === "Escape") {
-                // nếu lightbox đang mở, đóng lightbox trước
                 if (!lightbox.classList.contains("hidden")) {
                     closeLightbox();
                     return;
@@ -487,10 +519,9 @@
             }
         });
 
-        // CODE HIỆU ỨNG NÚT "NO"
+        // CODE HIỆU ỨNG NÚT "NO" (Giữ nguyên)
         const yesBtn = document.getElementById("yesBtn");
         const noBtn = document.getElementById("noBtn");
-
         let noCounter = 0; 
         let yesScale = 1;
 
@@ -525,7 +556,7 @@
 
                 isTooClose = !(isLeft || isRight || isAbove || isBelow);
 
-            } while (isTooClose || randX < 0 || randY < 0); // Đảm bảo không nằm ngoài khung
+            } while (isTooClose || randX < 0 || randY < 0);
 
             noBtn.style.position = "absolute";
             noBtn.style.left = randX + "px";
@@ -550,7 +581,6 @@
             yesBtn.style.transform = `scale(${yesScale + 0.2})`;
             noBtn.style.display = "none";
             
-            // Ẩn nút điều khiển nhạc để tạo điểm nhấn cuối cùng
             toggleMusicBtn.style.display = 'none';
         });
     </script>
