@@ -1,208 +1,302 @@
-<script>
-    const BOARD_SIZE = 300; // Kích thước khung (px)
-    const ROWS = 3;
-    const COLS = 3;
-    const PIECE_SIZE = BOARD_SIZE / ROWS; // 100px
-    const TARGET_URL = 'ani2nam.html'; // Tên file website 2 năm của bạn
-
-    const puzzleBoard = document.getElementById('puzzle-board');
-    const checkBtn = document.getElementById('check-btn');
-    const messageEl = document.getElementById('message');
-    const IMAGE_SRC = 'img/38.jpg'; // Dùng ảnh nền từ trang kỷ niệm cũ làm ảnh giải đố
-
-    let pieces = [];
-    let isGameComplete = false;
-    let dragElement = null;
-
-    // 1. KHỞI TẠO MẢNH GHÉP
-    function createPieces() {
-        puzzleBoard.innerHTML = ''; // Xóa mảnh ghép cũ
-        pieces = [];
-
-        for (let r = 0; r < ROWS; r++) {
-            for (let c = 0; c < COLS; c++) {
-                const index = r * COLS + c;
-
-                const piece = document.createElement('div');
-                piece.classList.add('puzzle-piece');
-                piece.dataset.correctRow = r;
-                piece.dataset.correctCol = c;
-                piece.dataset.index = index;
-
-                // Thiết lập kích thước và ảnh nền
-                piece.style.width = PIECE_SIZE + 'px';
-                piece.style.height = PIECE_SIZE + 'px';
-                piece.style.backgroundImage = `url(${IMAGE_SRC})`;
-                piece.style.backgroundSize = `${BOARD_SIZE}px ${BOARD_SIZE}px`;
-                piece.style.backgroundPosition = `-${c * PIECE_SIZE}px -${r * PIECE_SIZE}px`;
-
-                pieces.push(piece);
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giải đố để mở khóa</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'custom-text': '#2c3e50',
+                        'custom-accent': '#7aa8bf',
+                    }
+                }
             }
         }
-        
-        shuffleAndPlacePieces(pieces);
-    }
-
-    // 2. XÁO TRỘN VÀ ĐẶT MẢNH GHÉP NGẪU NHIÊN
-    function shuffleAndPlacePieces(arr) {
-        // Xáo trộn mảng (Fisher-Yates)
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        
-        // Đặt mảnh ghép vào vị trí ngẫu nhiên trên board (ban đầu)
-        arr.forEach((piece, index) => {
-            const r = Math.floor(Math.random() * ROWS); // Vị trí hàng ngẫu nhiên
-            const c = Math.floor(Math.random() * COLS); // Vị trí cột ngẫu nhiên
-
-            piece.style.top = r * PIECE_SIZE + 'px';
-            piece.style.left = c * PIECE_SIZE + 'px';
-
-            puzzleBoard.appendChild(piece);
-        });
-
-        // Sau khi xáo trộn, cho phép kiểm tra
-        checkBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        checkBtn.disabled = false;
-    }
-
-    // 3. XỬ LÝ KÉO THẢ (Drag and Drop)
+    </script>
     
-    // Gán sự kiện cho từng mảnh ghép
-    pieces.forEach(piece => {
-        piece.addEventListener('mousedown', startDrag);
-        piece.addEventListener('touchstart', startDrag); 
-    });
-
-    function startDrag(e) {
-        if (isGameComplete) return;
-
-        // Xử lý sự kiện chạm (touch event)
-        const event = e.touches ? e.touches[0] : e;
-        dragElement = this;
-        dragElement.classList.add('dragging');
-        
-        // Tính toán vị trí offset để mảnh ghép không bị nhảy
-        const rect = dragElement.getBoundingClientRect();
-        const offsetX = event.clientX - rect.left;
-        const offsetY = event.clientY - rect.top;
-
-        function moveDrag(e) {
-            if (!dragElement) return;
-            const event = e.touches ? e.touches[0] : e;
-
-            // Tính toán vị trí mới
-            let newX = event.clientX - offsetX;
-            let newY = event.clientY - offsetY;
-
-            // Giới hạn trong board
-            const boardRect = puzzleBoard.getBoundingClientRect();
-            newX = Math.max(boardRect.left, newX);
-            newX = Math.min(boardRect.right - PIECE_SIZE, newX);
-            
-            newY = Math.max(boardRect.top, newY);
-            newY = Math.min(boardRect.bottom - PIECE_SIZE, newY);
-            
-            // Cập nhật vị trí của mảnh ghép (relative to the board's parent)
-            dragElement.style.left = (newX - boardRect.left) + 'px';
-            dragElement.style.top = (newY - boardRect.top) + 'px';
+    <style>
+        /* CSS cho các mảnh ghép */
+        .puzzle-piece {
+            cursor: grab; /* Thay đổi con trỏ khi kéo */
+            transition: border 0.2s;
+            position: absolute; 
+            user-select: none;
+            touch-action: none;
+            border: 2px solid transparent;
         }
-
-        function endDrag(e) {
-            if (!dragElement) return;
-            
-            // Xử lý logic snap-to-grid và kiểm tra
-            snapToGrid(dragElement);
-            
-            dragElement.classList.remove('dragging');
-            dragElement = null;
-            
-            document.removeEventListener('mousemove', moveDrag);
-            document.removeEventListener('mouseup', endDrag);
-            document.removeEventListener('touchmove', moveDrag);
-            document.removeEventListener('touchend', endDrag);
+        .puzzle-piece.dragging {
+            opacity: 0.8;
+            z-index: 1000;
+            cursor: grabbing;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
+        .puzzle-piece.correct {
+            border: 2px solid #4CAF50; /* Màu xanh lá khi đúng vị trí */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-        document.addEventListener('mousemove', moveDrag);
-        document.addEventListener('mouseup', endDrag);
-        document.addEventListener('touchmove', moveDrag);
-        document.addEventListener('touchend', endDrag);
+    <div id="puzzle-container" class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-lg w-full">
+        <h1 class="text-3xl font-bold mb-4 text-custom-text">🔓 Mở khóa Website kỷ niệm</h1>
+        <p class="text-lg text-gray-600 mb-6">Hãy ghép đúng bức tranh này để thấy điều bất ngờ!</p>
         
-        e.preventDefault(); // Ngăn chặn hành vi mặc định
-    }
+        <div id="puzzle-board" class="relative mx-auto border-4 border-custom-accent shadow-inner" style="width: 300px; height: 300px;">
+            </div>
 
-    // 4. LOGIC SNAP-TO-GRID VÀ KIỂM TRA ĐÚNG VỊ TRÍ
-    function snapToGrid(piece) {
-        const currentX = parseFloat(piece.style.left);
-        const currentY = parseFloat(piece.style.top);
+        <button id="check-btn" class="mt-8 bg-custom-accent text-white py-3 px-6 rounded-lg text-xl font-semibold hover:bg-[#6c91a4] transition duration-300">
+            Kiểm tra
+        </button>
 
-        // Tính toán vị trí cột và hàng gần nhất
-        let targetCol = Math.round(currentX / PIECE_SIZE);
-        let targetRow = Math.round(currentY / PIECE_SIZE);
+        <p id="message" class="mt-4 text-lg font-semibold h-6"></p>
+    </div>
 
-        // Giới hạn lại trong phạm vi (0 -> 2)
-        targetCol = Math.min(Math.max(0, targetCol), COLS - 1);
-        targetRow = Math.min(Math.max(0, targetRow), ROWS - 1);
+    <script>
+        // Đảm bảo toàn bộ mã JS chỉ chạy sau khi trang đã tải xong
+        document.addEventListener('DOMContentLoaded', (event) => {
+            
+            const BOARD_SIZE = 300; // Kích thước khung (px)
+            const ROWS = 3;
+            const COLS = 3;
+            const PIECE_SIZE = BOARD_SIZE / ROWS; // 100px
+            const TARGET_URL = 'anniversary.html'; // Tên file website 2 năm của bạn
 
-        // Đặt mảnh ghép vào vị trí lưới
-        piece.style.left = targetCol * PIECE_SIZE + 'px';
-        piece.style.top = targetRow * PIECE_SIZE + 'px';
+            const puzzleBoard = document.getElementById('puzzle-board');
+            const checkBtn = document.getElementById('check-btn');
+            const messageEl = document.getElementById('message');
+            
+            // KIỂM TRA ĐƯỜNG DẪN NÀY PHẢI ĐÚNG 100%
+            const IMAGE_SRC = 'img/38.jpg'; 
 
-        // Gán vị trí hiện tại
-        piece.dataset.currentRow = targetRow;
-        piece.dataset.currentCol = targetCol;
+            let pieces = [];
+            let isGameComplete = false;
+            let dragElement = null;
 
-        checkCorrectness(piece);
-    }
-    
-    // Kiểm tra xem mảnh ghép có đang ở vị trí đúng (hàng và cột) hay không
-    function checkCorrectness(piece) {
-        const isCorrect = 
-            piece.dataset.correctRow === piece.dataset.currentRow &&
-            piece.dataset.correctCol === piece.dataset.currentCol;
-        
-        piece.classList.toggle('correct', isCorrect);
-        return isCorrect;
-    }
-
-    // 5. KIỂM TRA TOÀN BỘ VÀ CHUYỂN HƯỚNG
-    checkBtn.addEventListener('click', () => {
-        if (isGameComplete) return;
-
-        let allCorrect = true;
-        
-        // Kiểm tra xem có 2 mảnh nào trùng vị trí không (logic nâng cao)
-        // Hiện tại chỉ kiểm tra đúng vị trí target
-
-        pieces.forEach(piece => {
-            if (!checkCorrectness(piece)) {
-                allCorrect = false;
+            // 1. KHỞI TẠO MẢNH GHÉP
+            function createPieces() {
+                // Tải ảnh để kiểm tra (không bắt buộc, nhưng tốt hơn)
+                const img = new Image();
+                img.onload = () => {
+                    // Nếu ảnh tải thành công thì tạo mảnh ghép
+                    _generatePieces();
+                    shuffleAndPlacePieces(pieces);
+                };
+                img.onerror = () => {
+                    // Nếu ảnh không tải được, hiện cảnh báo
+                    puzzleBoard.innerHTML = `<div class="absolute inset-0 flex items-center justify-center bg-red-100 text-red-600 text-sm p-4">❌ LỖI: Không tìm thấy file ảnh: ${IMAGE_SRC}</div>`;
+                    checkBtn.disabled = true;
+                    checkBtn.textContent = 'Lỗi ảnh';
+                };
+                img.src = IMAGE_SRC; 
             }
+
+            function _generatePieces() {
+                puzzleBoard.innerHTML = ''; 
+                pieces = [];
+
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        const index = r * COLS + c;
+
+                        const piece = document.createElement('div');
+                        piece.classList.add('puzzle-piece');
+                        // Lưu vị trí đúng
+                        piece.dataset.correctRow = r;
+                        piece.dataset.correctCol = c;
+                        piece.dataset.index = index;
+                        
+                        // Thiết lập kích thước và ảnh nền
+                        piece.style.width = PIECE_SIZE + 'px';
+                        piece.style.height = PIECE_SIZE + 'px';
+                        piece.style.backgroundImage = `url(${IMAGE_SRC})`;
+                        piece.style.backgroundSize = `${BOARD_SIZE}px ${BOARD_SIZE}px`;
+                        piece.style.backgroundPosition = `-${c * PIECE_SIZE}px -${r * PIECE_SIZE}px`;
+
+                        pieces.push(piece);
+                    }
+                }
+                
+                // Gán sự kiện Kéo Thả (Sau khi tạo mảnh ghép)
+                pieces.forEach(piece => {
+                    piece.addEventListener('mousedown', startDrag);
+                    piece.addEventListener('touchstart', startDrag); 
+                });
+            }
+
+            // 2. XÁO TRỘN VÀ ĐẶT MẢNH GHÉP NGẪU NHIÊN
+            function shuffleAndPlacePieces(arr) {
+                // Xáo trộn mảng (Fisher-Yates)
+                for (let i = arr.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+                
+                // Đặt mảnh ghép vào vị trí ngẫu nhiên trên board (ban đầu)
+                arr.forEach((piece) => {
+                    // Tạo một vị trí ngẫu nhiên
+                    const r = Math.floor(Math.random() * ROWS); 
+                    const c = Math.floor(Math.random() * COLS);
+
+                    piece.style.top = r * PIECE_SIZE + 'px';
+                    piece.style.left = c * PIECE_SIZE + 'px';
+
+                    puzzleBoard.appendChild(piece);
+                });
+            }
+
+            // 3. XỬ LÝ KÉO THẢ (Drag and Drop)
+            function startDrag(e) {
+                if (isGameComplete) return;
+
+                const event = e.touches ? e.touches[0] : e;
+                dragElement = this;
+                dragElement.classList.add('dragging');
+                
+                // Đưa mảnh ghép lên trên cùng khi kéo
+                dragElement.style.zIndex = 1001; 
+
+                const rect = dragElement.getBoundingClientRect();
+                const offsetX = event.clientX - rect.left;
+                const offsetY = event.clientY - rect.top;
+                const boardRect = puzzleBoard.getBoundingClientRect();
+
+                function moveDrag(e) {
+                    if (!dragElement) return;
+                    const event = e.touches ? e.touches[0] : e;
+
+                    let newX = event.clientX - offsetX;
+                    let newY = event.clientY - offsetY;
+
+                    // Cập nhật vị trí của mảnh ghép (relative to the board's parent)
+                    dragElement.style.left = (newX - boardRect.left) + 'px';
+                    dragElement.style.top = (newY - boardRect.top) + 'px';
+                }
+
+                function endDrag(e) {
+                    if (!dragElement) return;
+                    
+                    // Xử lý logic snap-to-grid và kiểm tra
+                    snapToGrid(dragElement);
+                    
+                    dragElement.classList.remove('dragging');
+                    dragElement.style.zIndex = ''; // Reset z-index
+                    dragElement = null;
+                    
+                    document.removeEventListener('mousemove', moveDrag);
+                    document.removeEventListener('mouseup', endDrag);
+                    document.removeEventListener('touchmove', moveDrag);
+                    document.removeEventListener('touchend', endDrag);
+                }
+
+                document.addEventListener('mousemove', moveDrag);
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchmove', moveDrag);
+                document.addEventListener('touchend', endDrag);
+                
+                e.preventDefault(); 
+            }
+
+            // 4. LOGIC SNAP-TO-GRID VÀ KIỂM TRA ĐÚNG VỊ TRÍ
+            function snapToGrid(piece) {
+                const currentX = parseFloat(piece.style.left);
+                const currentY = parseFloat(piece.style.top);
+
+                // Tính toán vị trí cột và hàng gần nhất
+                let targetCol = Math.round(currentX / PIECE_SIZE);
+                let targetRow = Math.round(currentY / PIECE_SIZE);
+
+                // Giới hạn lại trong phạm vi (0 -> 2)
+                targetCol = Math.min(Math.max(0, targetCol), COLS - 1);
+                targetRow = Math.min(Math.max(0, targetRow), ROWS - 1);
+                
+                // Đảm bảo không có mảnh ghép nào khác đang ở vị trí này
+                // (Logic này bị lược bỏ để đơn giản hóa, có thể thêm sau)
+
+                // Đặt mảnh ghép vào vị trí lưới
+                piece.style.left = targetCol * PIECE_SIZE + 'px';
+                piece.style.top = targetRow * PIECE_SIZE + 'px';
+
+                checkCorrectness(piece);
+            }
+            
+            // Kiểm tra xem mảnh ghép có đang ở vị trí đúng (hàng và cột) hay không
+            function checkCorrectness(piece) {
+                const currentLeft = parseFloat(piece.style.left);
+                const currentTop = parseFloat(piece.style.top);
+
+                // Lấy vị trí lưới hiện tại (đã làm tròn)
+                const currentRow = Math.round(currentTop / PIECE_SIZE);
+                const currentCol = Math.round(currentLeft / PIECE_SIZE);
+
+                const isCorrect = 
+                    parseInt(piece.dataset.correctRow) === currentRow &&
+                    parseInt(piece.dataset.correctCol) === currentCol;
+                
+                piece.classList.toggle('correct', isCorrect);
+                return isCorrect;
+            }
+
+            // 5. KIỂM TRA TOÀN BỘ VÀ CHUYỂN HƯỚNG
+            checkBtn.addEventListener('click', () => {
+                if (isGameComplete) return;
+
+                let allCorrect = true;
+                
+                // Kiểm tra xem có mảnh ghép nào đặt đúng vị trí không
+                pieces.forEach(piece => {
+                    if (!checkCorrectness(piece)) {
+                        allCorrect = false;
+                    }
+                });
+                
+                // Kiểm tra xem có mảnh ghép nào bị trùng vị trí không (Rất quan trọng)
+                const occupiedPositions = new Set();
+                pieces.forEach(piece => {
+                    const currentLeft = parseFloat(piece.style.left);
+                    const currentTop = parseFloat(piece.style.top);
+                    const key = `${currentLeft},${currentTop}`;
+                    
+                    if(occupiedPositions.has(key)) {
+                        allCorrect = false; // Bị trùng vị trí
+                    }
+                    occupiedPositions.add(key);
+                });
+
+                if (allCorrect) {
+                    messageEl.textContent = 'Tuyệt vời! Bạn đã hoàn thành bức tranh! 🎉';
+                    isGameComplete = true;
+                    
+                    // Tắt tương tác kéo thả
+                    pieces.forEach(piece => piece.style.pointerEvents = 'none');
+                    
+                    // Chuyển hướng
+                    setTimeout(() => {
+                        window.location.href = TARGET_URL; 
+                    }, 2000); 
+                    
+                    checkBtn.disabled = true;
+                    checkBtn.textContent = 'Đang chuyển hướng...';
+                    checkBtn.classList.remove('bg-custom-accent');
+                    checkBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                } else {
+                    messageEl.textContent = 'Chưa đúng, hãy thử sắp xếp lại nhé.';
+                    checkBtn.classList.add('bg-red-500');
+                    setTimeout(() => {
+                        messageEl.textContent = '';
+                        checkBtn.classList.remove('bg-red-500');
+                    }, 1500);
+                }
+            });
+
+            // Bắt đầu trò chơi
+            createPieces();
         });
-
-        if (allCorrect) {
-            messageEl.textContent = 'Tuyệt vời! Bạn đã hoàn thành bức tranh! 🎉';
-            isGameComplete = true;
-            
-            // Cài đặt chuyển hướng
-            setTimeout(() => {
-                window.location.href = TARGET_URL; 
-            }, 2000); // Chuyển hướng sau 2 giây
-            
-            checkBtn.disabled = true;
-            checkBtn.textContent = 'Đang chuyển hướng...';
-            checkBtn.classList.add('bg-green-600');
-        } else {
-            messageEl.textContent = 'Chưa đúng, hãy thử sắp xếp lại nhé.';
-            checkBtn.classList.add('bg-red-500');
-            setTimeout(() => {
-                messageEl.textContent = '';
-                checkBtn.classList.remove('bg-red-500');
-            }, 1500);
-        }
-    });
-
-    // Bắt đầu trò chơi
-    createPieces();
-</script>
+    </script>
+</body>
+</html>
