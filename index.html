@@ -418,6 +418,7 @@
         // -------------------------------------
 
         // HÀM HIỂN THỊ SLIDE
+        // HÀM HIỂN THỊ SLIDE (ĐÃ SỬA LỖI SIZING)
         function showSlide(n) {
             if (currentAlbumItems.length === 0) return;
             
@@ -448,7 +449,8 @@
                 const img = document.createElement('img');
                 img.src = item.src;
                 img.alt = 'Slide';
-                img.className = "max-w-full max-h-full object-contain rounded"; 
+                // ĐÃ SỬA: Thay max-w/max-h bằng w-full h-full để BẮT BUỘC chiếm 100% không gian.
+                img.className = "w-full h-full object-contain rounded"; 
                 // XỬ LÝ LỖI: Nếu ảnh không tải được, hiện cảnh báo
                 img.onerror = function() {
                     slide.innerHTML = `<div class="text-center text-white bg-red-600 p-4 rounded max-w-sm mx-auto">
@@ -463,7 +465,8 @@
                 // Tự động phát khi chuyển đến slide video
                 video.autoplay = true; 
                 video.loop = true;
-                video.className = "max-w-full max-h-full object-contain rounded";
+                // ĐÃ SỬA: Thay max-w/max-h bằng w-full h-full để BẮT BUỘC chiếm 100% không gian.
+                video.className = "w-full h-full object-contain rounded";
                 // XỬ LÝ LỖI: Nếu video không tải được, hiện cảnh báo
                 video.addEventListener('error', function() {
                     slide.innerHTML = `<div class="text-center text-white bg-red-600 p-4 rounded max-w-sm mx-auto">
@@ -480,7 +483,6 @@
             // Cập nhật chỉ mục
             slideIndexEl.textContent = `${currentSlideIndex + 1} / ${currentAlbumItems.length}`;
         }
-
         function nextSlide() {
             showSlide(currentSlideIndex + 1);
         }
