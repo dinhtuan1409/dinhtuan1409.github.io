@@ -45,15 +45,6 @@
         .animate-bounce {
             animation: bounce 1.5s infinite;
         }
-
-        /* Kiểu cho ảnh lớn và video (lightbox) */
-        .lightbox-content {
-            max-height: 80vh;
-            max-width: 95vw; /* Giới hạn để phù hợp với màn hình */
-            display: block;
-            margin: 0 auto;
-            object-fit: contain; /* Giữ tỷ lệ, không crop */
-        }
     </style>
 </head>
 <body class="font-sans antialiased bg-custom-bg text-custom-text">
@@ -66,7 +57,7 @@
     <button id="toggleMusicBtn" 
             class="fixed top-4 right-4 z-50 p-2 bg-custom-accent/80 text-white rounded-full shadow-lg hover:bg-custom-accent transition duration-200">
         <svg id="musicOnIcon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.536 7.425A1.75 1.75 0 008 8.75v3.5c0 .777.834 1.253 1.536.825l3.5-2.25a1.75 1.75 0 000-2.85l-3.5-2.25z" clip-rule="evenodd" />
+            <path fill-rule="evenodd" d="M9.383 1.076A1 1 0 008.5 2V3h2V2a1 1 0 00-.617-.924l-.11-.037a1 1 0 00-.773 0zM10 18a8 8 0 100-16 8 8 0 000 16zM9 8a1 1 0 011-1h1a1 1 0 011 1v4a1 1 0 01-1 1H9a1 1 0 01-1-1V8z" clip-rule="evenodd" />
         </svg>
         <svg id="musicOffIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.75 8a.75.75 0 00-.75.75v3.5a.75.75 0 001.5 0V9.5h1.25a.75.75 0 00.75-.75V8a.75.75 0 00-.75-.75H9.5a.75.75 0 00-.75.75zM12 11.25a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H12zM7.75 11.25a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H7.75z" />
@@ -237,26 +228,30 @@
     </footer>
 
     <div id="galleryModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-[9999] p-4" aria-hidden="true" role="dialog" aria-modal="true">
-        <div class="bg-white rounded-xl max-w-4xl w-full relative p-4 shadow-xl">
+        <div class="bg-white rounded-xl max-w-4xl w-full relative p-4 shadow-xl flex flex-col max-h-[90vh]">
             
             <button id="closeGalleryBtn" aria-label="Đóng" 
-                    class="absolute top-3 right-3 text-2xl font-bold text-gray-500 hover:text-black">&times;</button>
+                    class="absolute top-3 right-3 text-3xl font-bold text-gray-500 hover:text-black z-30">&times;</button>
 
-            <h3 id="albumTitle" class="text-2xl font-semibold mb-4 text-center"></h3>
+            <h3 id="albumTitle" class="text-2xl font-semibold mb-4 text-center flex-shrink-0"></h3>
 
-            <div id="albumContent" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"></div>
-
-            <div id="lightbox" class="hidden fixed inset-0 z-[10000] flex items-center justify-center p-4">
-                <div class="max-w-[95%] max-h-[95%] bg-black/80 rounded-lg p-4 flex flex-col items-center justify-center">
-                    <button id="closeLightbox" aria-label="Đóng nội dung" class="self-end text-white text-2xl mb-2">&times;</button>
-                    <div id="lightboxContentWrapper" class="flex items-center justify-center">
-                        <img id="lightboxImg" src="" alt="Ảnh lớn" class="lightbox-content rounded hidden" />
-                        <video id="lightboxVideo" src="" controls class="lightbox-content rounded hidden"></video>
+            <div id="albumContent" class="relative w-full flex-grow flex items-center justify-center min-h-[500px] mb-4">
+                
+                <div id="slidesContainer" class="w-full h-full relative overflow-hidden bg-black rounded-lg">
                     </div>
-                </div>
+
+                <button id="nextBtn" class="absolute right-0 top-1/2 transform -translate-y-1/2 p-3 bg-black/50 text-white rounded-l-lg z-20 hover:bg-black/80 transition" aria-label="Tiếp theo">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+
+                <button id="prevBtn" class="absolute left-0 top-1/2 transform -translate-y-1/2 p-3 bg-black/50 text-white rounded-r-lg z-20 hover:bg-black/80 transition" aria-label="Trước đó">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+
+                <div id="slideIndex" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-4 py-1 rounded text-lg z-20 font-medium"></div>
             </div>
 
-        </div>
+            </div>
     </div>
 
     <section id="final-question" class="py-24 px-6 bg-custom-light text-center">
@@ -275,13 +270,11 @@
     </section>
 
     <script>
-        /* Danh sách nội dung của từng album - Cấu trúc MỚI hỗ trợ cả ảnh và video */
+        /* Danh sách nội dung của từng album - Cấu trúc giữ nguyên */
         const albumImages = {
-            // ALBUM 1 ĐÃ ĐƯỢC CẬP NHẬT: 1 Video + 3 Ảnh
             album1: {
                 title: "Album 1: Những Chuyến Đi",
                 items: [
-                    // Giả định video
                     { src: "video/video14.mp4", type: "video" },
                     { src: "video/video13.mp4", type: "video" }, 
                     { src: "video/video8.mp4", type: "video" },
@@ -289,7 +282,6 @@
                     { src: "img/anh18.jpg", type: "image" }
                 ]
             },
-            // CÁC ALBUM KHÁC ĐƯỢC CHUYỂN SANG CẤU TRÚC MỚI (CHỈ CHỨA IMAGE)
             album2: {
                 title: "Album 2: Ngày Bình Thường",
                 items: [
@@ -355,11 +347,15 @@
         const albumTitleEl = document.getElementById("albumTitle");
         const albumContentEl = document.getElementById("albumContent");
         const closeGalleryBtn = document.getElementById("closeGalleryBtn");
-        const lightbox = document.getElementById("lightbox");
-        // Đã thêm lightboxVideo
-        const lightboxImg = document.getElementById("lightboxImg");
-        const lightboxVideo = document.getElementById("lightboxVideo");
-        const closeLightboxBtn = document.getElementById("closeLightbox");
+        
+        // CÁC BIẾN MỚI CHO TRÌNH CHIẾU
+        const slidesContainerEl = document.getElementById("slidesContainer");
+        const nextBtn = document.getElementById("nextBtn");
+        const prevBtn = document.getElementById("prevBtn");
+        const slideIndexEl = document.getElementById("slideIndex");
+
+        let currentAlbumItems = [];
+        let currentSlideIndex = 0;
         
         // Audio elements (Giữ nguyên)
         const backgroundMusic = document.getElementById('backgroundMusic');
@@ -418,62 +414,86 @@
         // END VÙNG CODE XỬ LÝ AUDIO
         // -------------------------------------
 
+        // -------------------------------------
+        // CÁC HÀM XỬ LÝ TRÌNH CHIẾU MỚI
+        // -------------------------------------
 
-        // HÀM MỞ GALLERY ĐÃ ĐƯỢC CẬP NHẬT ĐỂ XỬ LÝ CẢ IMAGE VÀ VIDEO
+        // HÀM HIỂN THỊ SLIDE
+        function showSlide(n) {
+            if (currentAlbumItems.length === 0) return;
+            
+            // Xử lý lặp lại (looping)
+            if (n >= currentAlbumItems.length) {
+                currentSlideIndex = 0;
+            } else if (n < 0) {
+                currentSlideIndex = currentAlbumItems.length - 1;
+            } else {
+                currentSlideIndex = n;
+            }
+            
+            // Dừng tất cả video đang chạy trước khi chuyển slide
+            slidesContainerEl.querySelectorAll('video').forEach(video => {
+                video.pause();
+            });
+
+            // Tạo slide mới
+            const item = currentAlbumItems[currentSlideIndex];
+            
+            slidesContainerEl.innerHTML = ''; // Xóa slide cũ
+            
+            const slide = document.createElement('div');
+            slide.className = "absolute inset-0 flex items-center justify-center p-4";
+            
+            if (item.type === 'image') {
+                const img = document.createElement('img');
+                img.src = item.src;
+                img.alt = 'Slide';
+                img.className = "max-w-full max-h-full object-contain rounded"; 
+                slide.appendChild(img);
+            } else if (item.type === 'video') {
+                const video = document.createElement('video');
+                video.src = item.src;
+                video.controls = true;
+                video.autoplay = true; 
+                video.loop = true;
+                video.className = "max-w-full max-h-full object-contain rounded";
+                slide.appendChild(video);
+            }
+            
+            slidesContainerEl.appendChild(slide);
+            
+            // Cập nhật chỉ mục
+            slideIndexEl.textContent = `${currentSlideIndex + 1} / ${currentAlbumItems.length}`;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlideIndex + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentSlideIndex - 1);
+        }
+
+        // HÀM MỞ GALLERY ĐÃ ĐƯỢC THAY ĐỔI HOÀN TOÀN
         function openGallery(albumId) {
             const data = albumImages[albumId];
             if (!data) return;
 
             albumTitleEl.textContent = data.title;
-            albumContentEl.innerHTML = "";
+            
+            // Lưu trữ nội dung album hiện tại
+            currentAlbumItems = data.items;
+            
+            // Thiết lập sự kiện cho nút điều hướng
+            nextBtn.removeEventListener("click", nextSlide); 
+            prevBtn.removeEventListener("click", prevSlide);
+            nextBtn.addEventListener("click", nextSlide);
+            prevBtn.addEventListener("click", prevSlide);
 
-            data.items.forEach(item => {
-                const wrapper = document.createElement("div");
-                wrapper.className = "rounded overflow-hidden relative group"; // Thêm relative và group
+            // Kích hoạt slide đầu tiên
+            showSlide(0);
 
-                if (item.type === 'image') {
-                    const img = document.createElement("img");
-                    img.src = item.src;
-                    img.alt = data.title;
-                    img.className = "w-full h-48 object-contain rounded cursor-zoom-in";
-                    img.onerror = () => img.src = "https://placehold.co/600x400";
-                    img.addEventListener("click", () => openLightbox(item.src, 'image'));
-                    wrapper.appendChild(img);
-                
-                } else if (item.type === 'video') {
-                    const videoThumbnail = document.createElement("video");
-                    videoThumbnail.src = item.src;
-                    videoThumbnail.controls = false; 
-                    videoThumbnail.autoplay = false;
-                    videoThumbnail.loop = true;
-                    videoThumbnail.muted = true; 
-                    videoThumbnail.preload = 'metadata'; 
-                    videoThumbnail.className = "w-full h-48 object-contain rounded cursor-zoom-in";
-                    videoThumbnail.addEventListener("click", () => openLightbox(item.src, 'video'));
-                    
-                    // Thêm icon play lên trên video
-                    const playIcon = document.createElement('div');
-                    playIcon.innerHTML = `<svg class="w-12 h-12 text-white/80 group-hover:text-white transition duration-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.536 7.425A1.75 1.75 0 008 8.75v3.5c0 .777.834 1.253 1.536.825l3.5-2.25a1.75 1.75 0 000-2.85l-3.5-2.25z" /></svg>`;
-                    playIcon.className = "absolute inset-0 flex items-center justify-center pointer-events-none bg-black/30 group-hover:bg-black/50 transition duration-300 rounded";
-
-                    wrapper.appendChild(videoThumbnail);
-
-                    // Tự động phát/dừng video thumbnail khi scroll (tối ưu hiệu năng)
-                    const observer = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                videoThumbnail.play();
-                            } else {
-                                videoThumbnail.pause();
-                            }
-                        });
-                    }, { threshold: 0.5 });
-                    observer.observe(wrapper);
-                }
-
-                albumContentEl.appendChild(wrapper);
-            });
-
+            // Hiển thị Modal
             modal.classList.remove("hidden");
             modal.classList.add("flex");
             modal.setAttribute("aria-hidden", "false");
@@ -481,6 +501,10 @@
         }
 
         function closeGallery() {
+            // Dừng video hiện tại nếu có
+            slidesContainerEl.querySelectorAll('video').forEach(video => {
+                video.pause();
+            });
             modal.classList.add("hidden");
             modal.classList.remove("flex");
             modal.setAttribute("aria-hidden", "true");
@@ -492,55 +516,15 @@
             if (e.target === modal) closeGallery();
         });
 
-        // HÀM MỞ LIGHTBOX ĐÃ ĐƯỢC CẬP NHẬT ĐỂ XỬ LÝ CẢ IMAGE VÀ VIDEO
-        function openLightbox(src, type) {
-            // Reset
-            lightboxImg.classList.add('hidden');
-            lightboxVideo.classList.add('hidden');
-            lightboxVideo.pause(); // Đảm bảo dừng video cũ
-
-            if (type === 'image') {
-                lightboxImg.src = src;
-                lightboxImg.classList.remove('hidden');
-            } else if (type === 'video') {
-                lightboxVideo.src = src;
-                lightboxVideo.controls = true;
-                lightboxVideo.classList.remove('hidden');
-                lightboxVideo.play(); // Bắt đầu phát video
-            }
-
-            lightbox.classList.remove("hidden");
-            lightbox.classList.add("flex");
-            document.body.style.overflow = "hidden";
-        }
-
-        function closeLightbox() {
-            lightbox.classList.add("hidden");
-            lightbox.classList.remove("flex");
-            
-            // Dọn dẹp nội dung lightbox
-            lightboxVideo.pause(); 
-            lightboxImg.src = "";
-            lightboxVideo.src = "";
-
-            if (modal.classList.contains("hidden")) {
-                document.body.style.overflow = ""; 
-            }
-        }
-
-        closeLightboxBtn.addEventListener("click", closeLightbox);
-        lightbox.addEventListener("click", (e) => {
-            if (e.target === lightbox.querySelector('.max-w-\\[95\\%\\]')) return;
-            if (e.target === lightbox) closeLightbox();
-        });
-
+        // ĐÃ XÓA openLightbox VÀ closeLightbox CŨ
+        
         document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") {
-                if (!lightbox.classList.contains("hidden")) {
-                    closeLightbox();
-                    return;
-                }
-                if (!modal.classList.contains("hidden")) {
+            if (!modal.classList.contains("hidden")) {
+                if (e.key === "ArrowRight") {
+                    nextSlide();
+                } else if (e.key === "ArrowLeft") {
+                    prevSlide();
+                } else if (e.key === "Escape") {
                     closeGallery();
                 }
             }
