@@ -57,7 +57,7 @@
     <button id="toggleMusicBtn" 
             class="fixed top-4 right-4 z-50 p-2 bg-custom-accent/80 text-white rounded-full shadow-lg hover:bg-custom-accent transition duration-200">
         <svg id="musicOnIcon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" d="M9.383 1.076A1 1 0 008.5 2V3h2V2a1 1 0 00-.617-.924l-.11-.037a1 1 0 00-.773 0zM10 18a8 8 0 100-16 8 8 0 000 16zM9 8a1 1 0 011-1h1a1 1 0 011 1v4a1 1 0 01-1 1H9a1 1 0 01-1-1V8z" clip-rule="evenodd" />
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.536 7.425A1.75 1.75 0 008 8.75v3.5c0 .777.834 1.253 1.536.825l3.5-2.25a1.75 1.75 0 000-2.85l-3.5-2.25z" clip-rule="evenodd" />
         </svg>
         <svg id="musicOffIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.75 8a.75.75 0 00-.75.75v3.5a.75.75 0 001.5 0V9.5h1.25a.75.75 0 00.75-.75V8a.75.75 0 00-.75-.75H9.5a.75.75 0 00-.75.75zM12 11.25a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H12zM7.75 11.25a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H7.75z" />
@@ -251,7 +251,7 @@
                 <div id="slideIndex" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-4 py-1 rounded text-lg z-20 font-medium"></div>
             </div>
 
-            </div>
+        </div>
     </div>
 
     <section id="final-question" class="py-24 px-6 bg-custom-light text-center">
@@ -345,7 +345,6 @@
 
         const modal = document.getElementById("galleryModal");
         const albumTitleEl = document.getElementById("albumTitle");
-        const albumContentEl = document.getElementById("albumContent");
         const closeGalleryBtn = document.getElementById("closeGalleryBtn");
         
         // CÁC BIẾN MỚI CHO TRÌNH CHIẾU
@@ -442,6 +441,7 @@
             slidesContainerEl.innerHTML = ''; // Xóa slide cũ
             
             const slide = document.createElement('div');
+            // Thiết lập p-4 cho slide để hình ảnh/video không bị dính sát mép khung đen
             slide.className = "absolute inset-0 flex items-center justify-center p-4";
             
             if (item.type === 'image') {
@@ -454,6 +454,7 @@
                 const video = document.createElement('video');
                 video.src = item.src;
                 video.controls = true;
+                // Tự động phát khi chuyển đến slide video
                 video.autoplay = true; 
                 video.loop = true;
                 video.className = "max-w-full max-h-full object-contain rounded";
@@ -484,7 +485,7 @@
             // Lưu trữ nội dung album hiện tại
             currentAlbumItems = data.items;
             
-            // Thiết lập sự kiện cho nút điều hướng
+            // Thiết lập sự kiện cho nút điều hướng (đảm bảo chỉ thêm 1 lần)
             nextBtn.removeEventListener("click", nextSlide); 
             prevBtn.removeEventListener("click", prevSlide);
             nextBtn.addEventListener("click", nextSlide);
@@ -513,10 +514,9 @@
 
         closeGalleryBtn.addEventListener("click", closeGallery);
         modal.addEventListener("click", (e) => {
+            // Đóng modal khi nhấp ra ngoài (chỉ khi target là modal overlay)
             if (e.target === modal) closeGallery();
         });
-
-        // ĐÃ XÓA openLightbox VÀ closeLightbox CŨ
         
         document.addEventListener("keydown", (e) => {
             if (!modal.classList.contains("hidden")) {
