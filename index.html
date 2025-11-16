@@ -1,573 +1,208 @@
-<!DOCTYPE html>
-<html lang="vi" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kỷ niệm 2 năm</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Great Vibes', 'cursive'],
-                    },
-                    colors: {
-                        'custom-bg': '#f0f7ff',
-                        'custom-text': '#2c3e50',
-                        'custom-light': '#cfe2f3',
-                        'custom-accent': '#7aa8bf',
-                    }
-                }
+<script>
+    const BOARD_SIZE = 300; // Kích thước khung (px)
+    const ROWS = 3;
+    const COLS = 3;
+    const PIECE_SIZE = BOARD_SIZE / ROWS; // 100px
+    const TARGET_URL = 'ani2nam.html'; // Tên file website 2 năm của bạn
+
+    const puzzleBoard = document.getElementById('puzzle-board');
+    const checkBtn = document.getElementById('check-btn');
+    const messageEl = document.getElementById('message');
+    const IMAGE_SRC = 'img/38.jpg'; // Dùng ảnh nền từ trang kỷ niệm cũ làm ảnh giải đố
+
+    let pieces = [];
+    let isGameComplete = false;
+    let dragElement = null;
+
+    // 1. KHỞI TẠO MẢNH GHÉP
+    function createPieces() {
+        puzzleBoard.innerHTML = ''; // Xóa mảnh ghép cũ
+        pieces = [];
+
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                const index = r * COLS + c;
+
+                const piece = document.createElement('div');
+                piece.classList.add('puzzle-piece');
+                piece.dataset.correctRow = r;
+                piece.dataset.correctCol = c;
+                piece.dataset.index = index;
+
+                // Thiết lập kích thước và ảnh nền
+                piece.style.width = PIECE_SIZE + 'px';
+                piece.style.height = PIECE_SIZE + 'px';
+                piece.style.backgroundImage = `url(${IMAGE_SRC})`;
+                piece.style.backgroundSize = `${BOARD_SIZE}px ${BOARD_SIZE}px`;
+                piece.style.backgroundPosition = `-${c * PIECE_SIZE}px -${r * PIECE_SIZE}px`;
+
+                pieces.push(piece);
             }
         }
-    </script>
+        
+        shuffleAndPlacePieces(pieces);
+    }
+
+    // 2. XÁO TRỘN VÀ ĐẶT MẢNH GHÉP NGẪU NHIÊN
+    function shuffleAndPlacePieces(arr) {
+        // Xáo trộn mảng (Fisher-Yates)
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        
+        // Đặt mảnh ghép vào vị trí ngẫu nhiên trên board (ban đầu)
+        arr.forEach((piece, index) => {
+            const r = Math.floor(Math.random() * ROWS); // Vị trí hàng ngẫu nhiên
+            const c = Math.floor(Math.random() * COLS); // Vị trí cột ngẫu nhiên
+
+            piece.style.top = r * PIECE_SIZE + 'px';
+            piece.style.left = c * PIECE_SIZE + 'px';
+
+            puzzleBoard.appendChild(piece);
+        });
+
+        // Sau khi xáo trộn, cho phép kiểm tra
+        checkBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        checkBtn.disabled = false;
+    }
+
+    // 3. XỬ LÝ KÉO THẢ (Drag and Drop)
     
-    <style>
-        /* Hiệu ứng mũi tên nhấp nháy */
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(-25%);
-                animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
-            }
-            50% {
-                transform: translateY(0);
-                animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
-            }
-        }
-        .animate-bounce {
-            animation: bounce 1.5s infinite;
-        }
-    </style>
-</head>
-<body class="font-sans antialiased bg-custom-bg text-custom-text">
+    // Gán sự kiện cho từng mảnh ghép
+    pieces.forEach(piece => {
+        piece.addEventListener('mousedown', startDrag);
+        piece.addEventListener('touchstart', startDrag); 
+    });
 
-    <audio id="backgroundMusic" autoplay loop muted>
-        <source src="music/lovesong.mp3" type="audio/mp3">
-        Trình duyệt của bạn không hỗ trợ phần tử audio.
-    </audio>
+    function startDrag(e) {
+        if (isGameComplete) return;
+
+        // Xử lý sự kiện chạm (touch event)
+        const event = e.touches ? e.touches[0] : e;
+        dragElement = this;
+        dragElement.classList.add('dragging');
+        
+        // Tính toán vị trí offset để mảnh ghép không bị nhảy
+        const rect = dragElement.getBoundingClientRect();
+        const offsetX = event.clientX - rect.left;
+        const offsetY = event.clientY - rect.top;
+
+        function moveDrag(e) {
+            if (!dragElement) return;
+            const event = e.touches ? e.touches[0] : e;
+
+            // Tính toán vị trí mới
+            let newX = event.clientX - offsetX;
+            let newY = event.clientY - offsetY;
+
+            // Giới hạn trong board
+            const boardRect = puzzleBoard.getBoundingClientRect();
+            newX = Math.max(boardRect.left, newX);
+            newX = Math.min(boardRect.right - PIECE_SIZE, newX);
+            
+            newY = Math.max(boardRect.top, newY);
+            newY = Math.min(boardRect.bottom - PIECE_SIZE, newY);
+            
+            // Cập nhật vị trí của mảnh ghép (relative to the board's parent)
+            dragElement.style.left = (newX - boardRect.left) + 'px';
+            dragElement.style.top = (newY - boardRect.top) + 'px';
+        }
+
+        function endDrag(e) {
+            if (!dragElement) return;
+            
+            // Xử lý logic snap-to-grid và kiểm tra
+            snapToGrid(dragElement);
+            
+            dragElement.classList.remove('dragging');
+            dragElement = null;
+            
+            document.removeEventListener('mousemove', moveDrag);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchmove', moveDrag);
+            document.removeEventListener('touchend', endDrag);
+        }
+
+        document.addEventListener('mousemove', moveDrag);
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchmove', moveDrag);
+        document.addEventListener('touchend', endDrag);
+        
+        e.preventDefault(); // Ngăn chặn hành vi mặc định
+    }
+
+    // 4. LOGIC SNAP-TO-GRID VÀ KIỂM TRA ĐÚNG VỊ TRÍ
+    function snapToGrid(piece) {
+        const currentX = parseFloat(piece.style.left);
+        const currentY = parseFloat(piece.style.top);
+
+        // Tính toán vị trí cột và hàng gần nhất
+        let targetCol = Math.round(currentX / PIECE_SIZE);
+        let targetRow = Math.round(currentY / PIECE_SIZE);
+
+        // Giới hạn lại trong phạm vi (0 -> 2)
+        targetCol = Math.min(Math.max(0, targetCol), COLS - 1);
+        targetRow = Math.min(Math.max(0, targetRow), ROWS - 1);
+
+        // Đặt mảnh ghép vào vị trí lưới
+        piece.style.left = targetCol * PIECE_SIZE + 'px';
+        piece.style.top = targetRow * PIECE_SIZE + 'px';
+
+        // Gán vị trí hiện tại
+        piece.dataset.currentRow = targetRow;
+        piece.dataset.currentCol = targetCol;
+
+        checkCorrectness(piece);
+    }
     
-    <button id="toggleMusicBtn" 
-            class="fixed top-4 right-4 z-50 p-2 bg-custom-accent/80 text-white rounded-full shadow-lg hover:bg-custom-accent transition duration-200">
-        <svg id="musicOnIcon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.536 7.425A1.75 1.75 0 008 8.75v3.5c0 .777.834 1.253 1.536.825l3.5-2.25a1.75 1.75 0 000-2.85l-3.5-2.25z" clip-rule="evenodd" />
-        </svg>
-        <svg id="musicOffIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.75 8a.75.75 0 00-.75.75v3.5a.75.75 0 001.5 0V9.5h1.25a.75.75 0 00.75-.75V8a.75.75 0 00-.75-.75H9.5a.75.75 0 00-.75.75zM12 11.25a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H12zM7.75 11.25a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H7.75z" />
-        </svg>
-    </button>
-
-
-    <section id="hero" class="h-screen w-full flex flex-col justify-center items-center relative text-white" 
-             style="background-image: url('img/38.jpg'); background-size: cover; background-position: center;">
+    // Kiểm tra xem mảnh ghép có đang ở vị trí đúng (hàng và cột) hay không
+    function checkCorrectness(piece) {
+        const isCorrect = 
+            piece.dataset.correctRow === piece.dataset.currentRow &&
+            piece.dataset.correctCol === piece.dataset.currentCol;
         
-        <div class="absolute inset-0 bg-black/50"></div>
+        piece.classList.toggle('correct', isCorrect);
+        return isCorrect;
+    }
+
+    // 5. KIỂM TRA TOÀN BỘ VÀ CHUYỂN HƯỚNG
+    checkBtn.addEventListener('click', () => {
+        if (isGameComplete) return;
+
+        let allCorrect = true;
         
-        <div class="relative z-10 text-center p-4">
-            <h1 class="font-display text-6xl md:text-8xl mb-4">2 Năm Cùng Nhau</h1>
-            <h2 class="text-3xl md:text-4xl mb-2 font-light tracking-wide">[BiQi] & [DiTi]</h2>
-            <p class="text-lg opacity-90">Ngày 14 tháng 11 năm 2023 - Ngày chúng ta bắt đầu</p>
-        </div>
-        
-        <a href="#story" class="absolute bottom-10 z-10 animate-bounce" aria-label="Cuộn xuống phần câu chuyện">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
-        </a>
-    </section>
+        // Kiểm tra xem có 2 mảnh nào trùng vị trí không (logic nâng cao)
+        // Hiện tại chỉ kiểm tra đúng vị trí target
 
-    <section id="story" class="py-24 px-6">
-        <div class="max-w-3xl mx-auto text-center">
-            <h2 class="font-display text-5xl md:text-6xl mb-8">Chuyện của chúng mình...</h2>
-            <img src="img/story-start.jpg" 
-                 alt="Ngày đầu tiên" 
-                 class="w-full max-w-lg mx-auto rounded-lg shadow-xl mb-8 object-contain h-auto"
-                 onerror="this.src='img/anh10.jpg'">
-            <p class="text-lg md:text-xl leading-relaxed">
-                Hai năm trước, anh thật may mắn khi gặp được bé và từ đó, chúng ta đã có một hành trình thật đẹp.
-            </p>
-        </div>
-    </section>
-
-    <section id="gallery" class="py-24 px-6 bg-white">
-        <div class="max-w-7xl mx-auto">
-            <h2 class="font-display text-5xl md:text-6xl text-center mb-16">Những Mảnh Ghép Kỷ Niệm</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
-                     onclick="openGallery('album1')" role="button" aria-label="Mở Album 1: Những Chuyến Đi">
-                    <img src="img/bia3.png" alt="Những chuyến đi" class="w-full h-64 object-contain" onerror="this.src='https://placehold.co/600x400'">
-                    <div class="p-6">
-                        <h3 class="text-2xl font-semibold mb-2">Album 1: Những Chuyến Đi</h3>
-                        <p class="text-custom-text/80">"Những nơi chúng ta đã cùng nhau khám phá"</p>
-                    </div>
-                </div>
-                
-                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
-                     onclick="openGallery('album2')" role="button" aria-label="Mở Album 2: Góc Ẩm Thực">
-                    <img src="img/bia4.png" alt="Góc ẩm thực" class="w-full h-64 object-contain" onerror="this.src='https://placehold.co/600x400'">
-                    <div class="p-6">
-                        <h3 class="text-2xl font-semibold mb-2">Album 2: Những ngày như bao ngày</h3>
-                        <p class="text-custom-text/80">"Yêu cả những lúc bình yên và 'lầy lội' thế này."</p>
-                    </div>
-                </div>
-                
-                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
-                     onclick="openGallery('album3')" role="button" aria-label="Mở Album 3: Chỉ Là Ngày Bình Thường">
-                    <img src="img/bia5.png" alt="Ngày bình thường" class="w-full h-64 object-contain" onerror="this.src='https://placehold.co/600x400'">
-                    <div class="p-6">
-                        <h3 class="text-2xl font-semibold mb-2">Album 3: Stalk đời đầu</h3>
-                        <p class="text-custom-text/80">"Những tấm hình mà a lưu khi mới cảm nắng bé nè hehe"</p>
-                    </div>
-                </div>
-                
-                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
-                     onclick="openGallery('album4')" role="button" aria-label="Mở Album 4: Những Dịp Đặc Biệt">
-                    <img src="img/bia1.png" alt="Dịp đặc biệt" class="w-full h-64 object-contain" onerror="this.src='https://placehold.co/600x400'">
-                    <div class="p-6">
-                        <h3 class="text-2xl font-semibold mb-2">Album 4: Những tấm hình cả 2 chụp với nhau </h3>
-                        <p class="text-custom-text/80">"Những kỉ niệm ta chụp với nhauuu"</p>
-                    </div>
-                </div>
-                
-                <div class="bg-custom-bg rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300 cursor-pointer"
-                     onclick="openGallery('album5')" role="button" aria-label="Mở Album 5: Gương Mặt Thương Hiệu">
-                    <img src="img/bia2.png" alt="Gương mặt thương hiệu" class="w-full h-64 object-contain" onerror="this.src='https://placehold.co/600x400'">
-                    <div class="p-6">
-                        <h3 class="text-2xl font-semibold mb-2">Album 5: Và đây là công chúa của anh"</h3>
-                        <p class="text-custom-text/80">"Những bức ảnh của một nàng công chúa xinh đẹpppp"</p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <section id="then-now" class="py-24 px-6">
-        <div class="max-w-5xl mx-auto text-center">
-            <h2 class="font-display text-5xl md:text-6xl mb-16">Chúng ta của 2 năm</h2>
-            <div class="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12">
-                <div class="flex-1">
-                    <img src="img/35.jpg" alt="Bức ảnh đầu tiên" class="w-full rounded-lg shadow-xl object-contain h-auto" onerror="this.src='https://placehold.co/600x600'">
-                    <h3 class="text-2xl font-semibold mt-6">Bức Ảnh Đầu Tiên</h3>
-                </div>
-                
-                <div class="hidden md:block">
-                    <svg class="w-12 h-12 text-custom-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </div>
-                
-                <div class="flex-1">
-                    <img src="img/11.jpg" alt="Bức ảnh gần đây" class="w-full rounded-lg shadow-xl object-contain h-auto" onerror="this.src='https://placehold.co/600x600'">
-                    <h3 class="text-2xl font-semibold mt-6">Bức Ảnh Gần Đây</h3>
-                </div>
-            </div>
-            <p class="text-lg md:text-xl leading-relaxed mt-12 max-w-2xl mx-auto">
-                "Chúng ta đã đi cùng nhau, cùng nhau trưởng thành suốt 2 năm nèee"
-            </p>
-        </div>
-    </section>
-    <section id="note" class="py-24 px-6">
-        <div class="max-w-3xl mx-auto text-center">
-            <h2 class="font-display text-5xl md:text-6xl mb-8">Gửi cô bé mạnh mẽ của anh,</h2>
-            <img src="img/14.jpg" 
-                 alt="Người thương" 
-                 class="w-full max-w-md mx-auto rounded-lg shadow-xl mb-10 object-contain h-auto"
-                 onerror="this.src='https://placehold.co/600x600'">
-            
-            <div class="text-lg md:text-xl text-left italic leading-loose space-y-5 bg-white p-8 md:p-12 rounded-lg shadow-inner">
-                <p>Cảm ơn bé vì đã luôn ở bên anh, trong cả những lúc vui vẻ lẫn khi khó khăn. Hai năm qua là một hành trình tuyệt vời, lấp đầy bởi những tiếng cười, những bài học và vô vàn yêu thương.</p>
-                <p>Điều anh luôn trân trọng nhất là được nhìn thấy bé bên anh cười nói, cảm ơn sự kiên nhẫn của bé với anh vì nhiều lúc anh có những hành động cư xử không đúng nhưng bé vẫn chỉ ra và bỏ qua cho anh.</p>
-                <p>Hai năm là khởi đầu của một chặng đường dài, và chúng ta sẽ cùng nhau đi tiếp trên chặng đường đó quài quài luôn. Anh thương bé nhiều lắmmmmm.</p>
-            </div>
-        </div>
-    </section>
-
-    <footer class="py-16 bg-custom-text text-custom-bg text-center">
-        <h3 class="font-display text-4xl md:text-5xl mb-4">Happy 2nd Anniversary!</h3>
-        <p class="text-lg opacity-90">Chúng ta sẽ ở cạnh nhau trong những hành trình tiếp theo.</p>
-        <p class="mt-6 text-sm opacity-70">Tạo bởi DiTi với tất cả tình yêu dành cho nàng công chúa BiQi hehe</p>
-    </footer>
-
-    <div id="galleryModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-[9999] p-4" aria-hidden="true" role="dialog" aria-modal="true">
-        <div class="bg-white rounded-xl max-w-4xl w-full relative p-4 shadow-xl flex flex-col max-h-[90vh]">
-            
-            <button id="closeGalleryBtn" aria-label="Đóng" 
-                    class="absolute top-3 right-3 text-3xl font-bold text-gray-500 hover:text-black z-30">&times;</button>
-
-            <h3 id="albumTitle" class="text-2xl font-semibold mb-4 text-center flex-shrink-0"></h3>
-
-           <div id="albumContent" class="relative w-full flex-grow flex flex-col justify-center min-h-[60vh] md:min-h-[70vh] p-4">
-                <div id="slidesContainer" class="w-full max-h-[90vh] relative overflow-hidden bg-black rounded-lg flex items-center justify-center p-4">
-                </div>
-             
-                <!-- Nút prev/next và index giữ nguyên -->
-      
-
-                <button id="nextBtn" class="absolute right-0 top-1/2 transform -translate-y-1/2 p-3 bg-black/50 text-white rounded-l-lg z-20 hover:bg-black/80 transition" aria-label="Tiếp theo">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
-                </button>
-
-                <button id="prevBtn" class="absolute left-0 top-1/2 transform -translate-y-1/2 p-3 bg-black/50 text-white rounded-r-lg z-20 hover:bg-black/80 transition" aria-label="Trước đó">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
-                </button>
-
-                <div id="slideIndex" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-4 py-1 rounded text-lg z-20 font-medium"></div>
-            </div>
-
-        </div>
-    </div>
-
-    <section id="final-question" class="py-24 px-6 bg-custom-light text-center">
-        <div class="max-w-3xl mx-auto">
-            <h2 class="font-display text-5xl md:text-6xl mb-12">Và câu hỏi cuối cùng</h2>
-            <h2 class="font-display text-5xl md:text-6xl mb-12">Bé có thương anh iu không hehe chọn 1 trong 2 đáp án nhé!!!</h2>
-            
-            <div class="relative flex justify-center gap-16 h-40 items-center">
-                <button id="yesBtn" class="bg-custom-accent text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">
-                    Cóoo ❤️
-                </button>
-                <button id="noBtn" class="bg-red-500 text-white text-2xl md:text-3xl font-semibold py-4 px-10 rounded-xl transition-all duration-300">
-                    noo 😒
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <script>
-        /* Danh sách nội dung của từng album */
-        const albumImages = {
-            album1: {
-                title: "Album 1: Những Chuyến Đi",
-                items: [
-                    { src: "video/video14.mp4", type: "video" },
-                    { src: "video/video13.mp4", type: "video" }, 
-                    { src: "video/video8.mp4", type: "video" },
-                    { src: "img/38.jpg", type: "image" }, 
-                    { src: "img/anh18.jpg", type: "image" }
-                ]
-            },
-            album2: {
-                title: "Album 2: Ngày Bình Thường",
-                items: [
-                    { src: "video/video2.mp4", type: "video" },
-                    { src: "video/video3.mp4", type: "video" },
-                    { src: "video/video7.mp4", type: "video" },
-                    { src: "video/video5.mp4", type: "video" },
-                    { src: "video/video11.mp4", type: "video" },
-                    { src: "img/4.jpg", type: "image" }, 
-                    { src: "img/5.jpg", type: "image" }, 
-                    { src: "img/12.jpg", type: "image" },
-                    { src: "img/21.jpg", type: "image" },
-                    { src: "img/anh20.jpg", type: "image" }
-                ]
-            },
-            album3: {
-                title: "Album 3: Stalk đời đầu",
-                items: [
-                    { src: "img/46.jpg", type: "image" }, 
-                    { src: "img/anh1.jpg", type: "image" },
-                    { src: "img/25.jpg", type: "image" },
-                    { src: "img/22.jpg", type: "image" },
-                    { src: "img/anh19.jpg", type: "image" }
-                ]
-            },
-            album4: {
-                title: "Album 4: Những ngày đi chơi",
-                items: [
-                    { src: "video/video6.mp4", type: "video" },
-                    { src: "video/video9.mp4", type: "video" },
-                    { src: "img/anh10.jpg", type: "image" },
-                    { src: "img/39.jpg", type: "image" }, 
-                    { src: "img/anh16.jpg", type: "image" }, 
-                    { src: "img/36.jpg", type: "image" }, 
-                    { src: "img/6.jpg", type: "image" },
-                    { src: "img/40.jpg", type: "image" },
-                    { src: "img/32.jpeg", type: "image" },
-                    { src: "img/anh8.jpg", type: "image" },
-                    { src: "img/41.jpg", type: "image" },
-                    { src: "img/13.jpg", type: "image" },
-                    { src: "img/tet.jpg", type: "image" },
-                ]
-            },
-            album5: {
-                title: "Album 5: Công chúa của anh",
-                items: [
-                    { src: "img/34.jpg", type: "image" }, 
-                    { src: "img/3.jpg", type: "image" }, 
-                    { src: "img/23.jpeg", type: "image" }, 
-                    { src: "img/27.jpg", type: "image" },
-                    { src: "img/28.jpg", type: "image" },
-                    { src: "img/37.jpg", type: "image" },
-                    { src: "img/47.jpeg", type: "image" },
-                    { src: "img/48.jpeg", type: "image" },
-                    { src: "img/anh15.jpg", type: "image" },
-                    { src: "img/anh11.jpg", type: "image" },
-                    { src: "img/44.jpg", type: "image" },
-                ]
-            }
-        };
-
-        const modal = document.getElementById("galleryModal");
-        const albumTitleEl = document.getElementById("albumTitle");
-        const closeGalleryBtn = document.getElementById("closeGalleryBtn");
-        
-        // CÁC BIẾN CHO TRÌNH CHIẾU
-        const slidesContainerEl = document.getElementById("slidesContainer");
-        const nextBtn = document.getElementById("nextBtn");
-        const prevBtn = document.getElementById("prevBtn");
-        const slideIndexEl = document.getElementById("slideIndex");
-
-        let currentAlbumItems = [];
-        let currentSlideIndex = 0;
-        
-        // Audio elements (Giữ nguyên)
-        const backgroundMusic = document.getElementById('backgroundMusic');
-        const toggleMusicBtn = document.getElementById('toggleMusicBtn');
-        const musicOnIcon = document.getElementById('musicOnIcon');
-        const musicOffIcon = document.getElementById('musicOffIcon');
-        let isMutedByUser = false; 
-
-        // -------------------------------------
-        // VÙNG CODE XỬ LÝ AUDIO (Giữ nguyên)
-        // -------------------------------------
-
-        function startMutedPlayback() {
-            backgroundMusic.play().catch(error => {});
-        }
-
-        const enableAudio = () => {
-            if (!backgroundMusic.muted || isMutedByUser) {
-                return;
-            }
-
-            backgroundMusic.play().then(() => {
-                backgroundMusic.muted = false; 
-                musicOnIcon.classList.remove('hidden');
-                musicOffIcon.classList.add('hidden');
-            }).catch(error => {
-                console.log("Không thể tự động bật tiếng. Cần tương tác thêm.");
-            });
-            
-            document.removeEventListener('click', enableAudio);
-            document.removeEventListener('scroll', enableAudio);
-            document.removeEventListener('touchstart', enableAudio);
-        };
-
-        toggleMusicBtn.addEventListener('click', () => {
-            if (backgroundMusic.muted) {
-                backgroundMusic.muted = false; 
-                backgroundMusic.play();
-                isMutedByUser = false; 
-                musicOnIcon.classList.remove('hidden');
-                musicOffIcon.classList.add('hidden');
-            } else {
-                backgroundMusic.muted = true; 
-                backgroundMusic.pause(); 
-                isMutedByUser = true; 
-                musicOnIcon.classList.add('hidden');
-                musicOffIcon.classList.remove('hidden');
+        pieces.forEach(piece => {
+            if (!checkCorrectness(piece)) {
+                allCorrect = false;
             }
         });
 
-        startMutedPlayback();
-        document.addEventListener('click', enableAudio, { once: true });
-        document.addEventListener('scroll', enableAudio, { once: true });
-        document.addEventListener('touchstart', enableAudio, { once: true }); 
-        // -------------------------------------
-        // END VÙNG CODE XỬ LÝ AUDIO
-        // -------------------------------------
-
-        // -------------------------------------
-        // CÁC HÀM XỬ LÝ TRÌNH CHIẾU MỚI (Đã thêm check lỗi đường dẫn)
-        // -------------------------------------
-
-        function showSlide(n) {
-            if (currentAlbumItems.length === 0) return;
-
-            currentSlideIndex = (n + currentAlbumItems.length) % currentAlbumItems.length;
-            slidesContainerEl.querySelectorAll('video').forEach(v => v.pause());
-            slidesContainerEl.innerHTML = '';
-
-            const item = currentAlbumItems[currentSlideIndex];
-            const wrapper = document.createElement('div');
-            wrapper.className = "flex items-center justify-center w-full h-auto max-h-[90vh]";
-
-            if (item.type === 'image') {
-                const img = new Image();
-                img.src = item.src;
-                img.alt = 'Kỷ niệm';
-                img.className = "max-w-full max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-2xl";
-
-                img.onload = () => {
-                    // Tự động điều chỉnh chiều cao container theo ảnh
-                    slidesContainerEl.style.height = 'auto';
-                    slidesContainerEl.style.minHeight = '50vh';
-                    wrapper.appendChild(img);
-                    slidesContainerEl.appendChild(wrapper);
-                };
-
-                img.onerror = () => {
-                    wrapper.innerHTML = `<div class="text-red-400 bg-black/80 p-6 rounded-lg text-center">Lỗi ảnh: ${item.src}</div>`;
-                    slidesContainerEl.appendChild(wrapper);
-                };
-            } 
-            else if (item.type === 'video') {
-                const video = document.createElement('video');
-                video.src = item.src;
-                video.controls = true;
-                video.autoplay = true;
-                video.muted = true;
-                video.loop = true;
-                video.playsInline = true;
-                video.className = "max-w-full max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-2xl";
-
-                video.onloadstart = () => {
-                    slidesContainerEl.style.height = 'auto';
-                    slidesContainerEl.style.minHeight = '50vh';
-                };
-
-                video.onerror = () => {
-                    wrapper.innerHTML = `<div class="text-red-400 bg-black/80 p-6 rounded-lg text-center">Lỗi video: ${item.src}</div>`;
-                };
-
-                wrapper.appendChild(video);
-                slidesContainerEl.appendChild(wrapper);
-            }
-
-            slideIndexEl.textContent = `${currentSlideIndex + 1} / ${currentAlbumItems.length}`;
-        }
-        function nextSlide() {
-            showSlide(currentSlideIndex + 1);
-        }
-
-        function prevSlide() {
-            showSlide(currentSlideIndex - 1);
-        }
-
-        // HÀM MỞ GALLERY
-        function openGallery(albumId) {
-            const data = albumImages[albumId];
-            if (!data) return;
-
-            albumTitleEl.textContent = data.title;
+        if (allCorrect) {
+            messageEl.textContent = 'Tuyệt vời! Bạn đã hoàn thành bức tranh! 🎉';
+            isGameComplete = true;
             
-            // Lưu trữ nội dung album hiện tại
-            currentAlbumItems = data.items;
+            // Cài đặt chuyển hướng
+            setTimeout(() => {
+                window.location.href = TARGET_URL; 
+            }, 2000); // Chuyển hướng sau 2 giây
             
-            // Thiết lập sự kiện cho nút điều hướng (đảm bảo chỉ thêm 1 lần)
-            nextBtn.removeEventListener("click", nextSlide); 
-            prevBtn.removeEventListener("click", prevSlide);
-            nextBtn.addEventListener("click", nextSlide);
-            prevBtn.addEventListener("click", prevSlide);
-
-            // Kích hoạt slide đầu tiên
-            showSlide(0);
-
-            // Hiển thị Modal
-            modal.classList.remove("hidden");
-            modal.classList.add("flex");
-            modal.setAttribute("aria-hidden", "false");
-            document.body.style.overflow = "hidden";
+            checkBtn.disabled = true;
+            checkBtn.textContent = 'Đang chuyển hướng...';
+            checkBtn.classList.add('bg-green-600');
+        } else {
+            messageEl.textContent = 'Chưa đúng, hãy thử sắp xếp lại nhé.';
+            checkBtn.classList.add('bg-red-500');
+            setTimeout(() => {
+                messageEl.textContent = '';
+                checkBtn.classList.remove('bg-red-500');
+            }, 1500);
         }
+    });
 
-        function closeGallery() {
-            // Dừng video hiện tại nếu có
-            slidesContainerEl.querySelectorAll('video').forEach(video => {
-                video.pause();
-            });
-            modal.classList.add("hidden");
-            modal.classList.remove("flex");
-            modal.setAttribute("aria-hidden", "true");
-            document.body.style.overflow = ""; // restore
-        }
-
-        closeGalleryBtn.addEventListener("click", closeGallery);
-        modal.addEventListener("click", (e) => {
-            // Đóng modal khi nhấp ra ngoài (chỉ khi target là modal overlay)
-            if (e.target === modal) closeGallery();
-        });
-        
-        document.addEventListener("keydown", (e) => {
-            if (!modal.classList.contains("hidden")) {
-                if (e.key === "ArrowRight") {
-                    nextSlide();
-                } else if (e.key === "ArrowLeft") {
-                    prevSlide();
-                } else if (e.key === "Escape") {
-                    closeGallery();
-                }
-            }
-        });
-
-        // CODE HIỆU ỨNG NÚT "NO" (Giữ nguyên)
-        const yesBtn = document.getElementById("yesBtn");
-        const noBtn = document.getElementById("noBtn");
-        let noCounter = 0; 
-        let yesScale = 1;
-
-        function moveNoButton() {
-            const container = noBtn.parentElement;
-            const containerRect = container.getBoundingClientRect();
-            const btnRect = noBtn.getBoundingClientRect();
-            const yesRect = yesBtn.getBoundingClientRect();
-
-            const yesX = yesBtn.offsetLeft;
-            const yesY = yesBtn.offsetTop;
-            
-            const yesWidth = yesRect.width;
-            const yesHeight = yesRect.height;
-            
-            const safeZone = 80; 
-
-            const maxX = containerRect.width - btnRect.width;
-            const maxY = containerRect.height - btnRect.height;
-
-            let randX, randY;
-            let isTooClose;
-
-            do {
-                randX = Math.random() * maxX;
-                randY = Math.random() * maxY;
-
-                const isLeft = randX + btnRect.width + safeZone < yesX;
-                const isRight = randX > yesX + yesWidth + safeZone;
-                const isAbove = randY + btnRect.height + safeZone < yesY;
-                const isBelow = randY > yesY + yesHeight + safeZone;
-
-                isTooClose = !(isLeft || isRight || isAbove || isBelow);
-
-            } while (isTooClose || randX < 0 || randY < 0);
-
-            noBtn.style.position = "absolute";
-            noBtn.style.left = randX + "px";
-            noBtn.style.top = randY + "px";
-        }
-
-        noBtn.addEventListener("mouseenter", () => {
-            noCounter++;
-
-            if(noCounter >= 5) {
-                noBtn.style.display = "none";
-                
-            } else {
-                moveNoButton();
-                yesScale += 0.2;
-                yesBtn.style.transform = `scale(${yesScale})`;
-            }
-        });
-
-        yesBtn.addEventListener("click", () => {
-            yesBtn.textContent = "Anh biết mà ❤️";
-            yesBtn.style.transform = `scale(${yesScale + 0.2})`;
-            noBtn.style.display = "none";
-            
-            toggleMusicBtn.style.display = 'none';
-        });
-    </script>
-</body>
-</html>
+    // Bắt đầu trò chơi
+    createPieces();
+</script>
