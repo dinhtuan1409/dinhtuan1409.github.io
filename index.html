@@ -237,15 +237,24 @@
     </footer>
 
     <div id="galleryModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-[9999] p-4" aria-hidden="true" role="dialog" aria-modal="true">
-        <div class="bg-white rounded-xl max-w-4xl w-full relative p-4 shadow-xl **flex flex-col max-h-[90vh]**"> 
-    
-            <button id="closeGalleryBtn" 
+        <div class="bg-white rounded-xl max-w-4xl w-full relative p-4 shadow-xl
+            flex flex-col max-h-[90vh] overflow-hidden"> 
+            
+            <button id="closeGalleryBtn"
                     class="absolute top-3 right-3 text-2xl font-bold text-gray-500 hover:text-black">&times;</button>
 
-            <h3 id="albumTitle" class="text-2xl font-semibold mb-4 text-center **flex-shrink-0**"></h3>
-            <div id="albumContent" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 **overflow-y-auto** **flex-grow**"></div>
-            <div id="lightbox" class="hidden fixed inset-0 z-[10000] flex items-center justify-center p-4">
-                </div>
+            <!-- TIÊU ĐỀ -->
+            <h3 id="albumTitle"
+                class="text-2xl font-semibold mb-4 text-center flex-shrink-0"></h3>
+
+            <!-- VÙNG CUỘN -->
+            <div id="albumContent"
+                class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4
+                    overflow-y-auto flex-grow min-h-0"></div>
+
+            <div id="lightbox"
+                class="hidden fixed inset-0 z-[10000] flex items-center justify-center p-4">
+            </div>
         </div>
     </div>
 
