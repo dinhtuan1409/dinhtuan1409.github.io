@@ -449,7 +449,7 @@
                 const img = document.createElement('img');
                 img.src = item.src;
                 img.alt = 'Kỷ niệm';
-                img.className = "max-w-full max-h-full object-contain rounded-lg shadow-2xl";
+                img.className = "max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-2xl";
                 
                 img.onerror = function() {
                     slide.innerHTML = `
@@ -468,7 +468,7 @@
                 video.muted = true;
                 video.loop = true;
                 video.playsInline = true;
-                video.className = "max-w-full max-h-full object-contain rounded-lg shadow-2xl";
+                video.className = "max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-2xl";
                 
                 video.onerror = function() {
                     slide.innerHTML = `
