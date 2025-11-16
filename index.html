@@ -235,10 +235,11 @@
 
             <h3 id="albumTitle" class="text-2xl font-semibold mb-4 text-center flex-shrink-0"></h3>
 
-            <div id="albumContent" class="relative w-full flex-grow flex items-center justify-center min-h-[500px] mb-4">
-                
-                <div id="slidesContainer" class="w-full h-full relative overflow-hidden bg-black rounded-lg">
-                    </div>
+            <div id="albumContent" class="relative w-full flex-grow flex flex-col items-center justify-center min-h-[500px] mb-4">
+                <div id="slidesContainer" class="w-full h-full min-h-[500px] relative overflow-hidden bg-black rounded-lg flex items-center justify-center">
+                </div>
+                <!-- Nút prev/next và index giữ nguyên -->
+      
 
                 <button id="nextBtn" class="absolute right-0 top-1/2 transform -translate-y-1/2 p-3 bg-black/50 text-white rounded-l-lg z-20 hover:bg-black/80 transition" aria-label="Tiếp theo">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
@@ -448,13 +449,11 @@
             if (item.type === 'image') {
                 const img = document.createElement('img');
                 img.src = item.src;
-                img.alt = 'Slide';
-                // ĐÃ SỬA: Thay max-w/max-h bằng w-full h-full để BẮT BUỘC chiếm 100% không gian.
-                img.className = "w-full h-full object-contain rounded"; 
-                // XỬ LÝ LỖI: Nếu ảnh không tải được, hiện cảnh báo
+                img.alt = 'Kỷ niệm';
+                img.className = "max-w-full max-h-full w-auto h-auto object-contain rounded";
                 img.onerror = function() {
-                    slide.innerHTML = `<div class="text-center text-white bg-red-600 p-4 rounded max-w-sm mx-auto">
-                        ❌ Lỗi: Không tìm thấy ảnh. Vui lòng kiểm tra đường dẫn file: <strong>${item.src}</strong>
+                    slide.innerHTML = `<div class="text-white bg-red-600 p-4 rounded text-center">
+                        Lỗi tải ảnh: <br><code class="text-xs">${item.src}</code>
                     </div>`;
                 };
                 slide.appendChild(img);
@@ -462,24 +461,21 @@
                 const video = document.createElement('video');
                 video.src = item.src;
                 video.controls = true;
-                // Tự động phát khi chuyển đến slide video
-                video.autoplay = true; 
+                video.autoplay = true;
+                video.muted = true;
                 video.loop = true;
-                // ĐÃ SỬA: Thay max-w/max-h bằng w-full h-full để BẮT BUỘC chiếm 100% không gian.
-                video.className = "w-full h-full object-contain rounded";
-                // XỬ LÝ LỖI: Nếu video không tải được, hiện cảnh báo
-                video.addEventListener('error', function() {
-                    slide.innerHTML = `<div class="text-center text-white bg-red-600 p-4 rounded max-w-sm mx-auto">
-                        ❌ Lỗi: Không tải được video. Vui lòng kiểm tra đường dẫn file: <strong>${item.src}</strong>
+                video.playsInline = true;
+                video.className = "max-w-full max-h-full w-auto h-auto object-contain rounded";
+                
+                video.onerror = function() {
+                    slide.innerHTML = `<div class="text-white bg-red-600 p-4 rounded text-center">
+                        Lỗi tải video: <br><code class="text-xs">${item.src}</code>
                     </div>`;
-                });
+                };
+                
+                video.load();
                 slide.appendChild(video);
-                // Cố gắng tải để kích hoạt lỗi (nếu có)
-                video.load(); 
             }
-            
-            slidesContainerEl.appendChild(slide);
-            
             // Cập nhật chỉ mục
             slideIndexEl.textContent = `${currentSlideIndex + 1} / ${currentAlbumItems.length}`;
         }
