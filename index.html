@@ -236,7 +236,7 @@
             <h3 id="albumTitle" class="text-2xl font-semibold mb-4 text-center flex-shrink-0"></h3>
 
            <div id="albumContent" class="relative w-full flex-grow flex flex-col justify-center min-h-[60vh] md:min-h-[70vh] p-4">
-                <div id="slidesContainer" class="w-full h-full min-h-[60vh] md:min-h-[70vh] relative overflow-hidden bg-black rounded-lg flex items-center justify-center p-4">
+                <div id="slidesContainer" class="w-full max-h-[90vh] relative overflow-hidden bg-black rounded-lg flex items-center justify-center p-4">
                 </div>
              
                 <!-- Nút prev/next và index giữ nguyên -->
@@ -420,45 +420,35 @@
         // CÁC HÀM XỬ LÝ TRÌNH CHIẾU MỚI (Đã thêm check lỗi đường dẫn)
         // -------------------------------------
 
-        // HÀM HIỂN THỊ SLIDE
         function showSlide(n) {
             if (currentAlbumItems.length === 0) return;
-            
-            // Xử lý vòng lặp
-            if (n >= currentAlbumItems.length) {
-                currentSlideIndex = 0;
-            } else if (n < 0) {
-                currentSlideIndex = currentAlbumItems.length - 1;
-            } else {
-                currentSlideIndex = n;
-            }
-            
-            // Dừng video cũ
-            slidesContainerEl.querySelectorAll('video').forEach(video => {
-                video.pause();
-            });
 
-            // Xóa slide cũ
+            currentSlideIndex = (n + currentAlbumItems.length) % currentAlbumItems.length;
+            slidesContainerEl.querySelectorAll('video').forEach(v => v.pause());
             slidesContainerEl.innerHTML = '';
 
             const item = currentAlbumItems[currentSlideIndex];
-            const slide = document.createElement('div');
-            slide.className = "w-full h-full flex items-center justify-center p-4";
+            const wrapper = document.createElement('div');
+            wrapper.className = "flex items-center justify-center w-full h-auto max-h-[90vh]";
 
             if (item.type === 'image') {
-                const img = document.createElement('img');
+                const img = new Image();
                 img.src = item.src;
                 img.alt = 'Kỷ niệm';
-                img.className = "max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-2xl";
-                
-                img.onerror = function() {
-                    slide.innerHTML = `
-                        <div class="text-red-400 bg-black/80 p-6 rounded-lg text-center max-w-md">
-                            <p class="font-bold">Lỗi ảnh</p>
-                            <p class="text-xs mt-2 break-all">${item.src}</p>
-                        </div>`;
+                img.className = "max-w-full max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-2xl";
+
+                img.onload = () => {
+                    // Tự động điều chỉnh chiều cao container theo ảnh
+                    slidesContainerEl.style.height = 'auto';
+                    slidesContainerEl.style.minHeight = '50vh';
+                    wrapper.appendChild(img);
+                    slidesContainerEl.appendChild(wrapper);
                 };
-                slide.appendChild(img);
+
+                img.onerror = () => {
+                    wrapper.innerHTML = `<div class="text-red-400 bg-black/80 p-6 rounded-lg text-center">Lỗi ảnh: ${item.src}</div>`;
+                    slidesContainerEl.appendChild(wrapper);
+                };
             } 
             else if (item.type === 'video') {
                 const video = document.createElement('video');
@@ -468,20 +458,21 @@
                 video.muted = true;
                 video.loop = true;
                 video.playsInline = true;
-                video.className = "max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-2xl";
-                
-                video.onerror = function() {
-                    slide.innerHTML = `
-                        <div class="text-red-400 bg-black/80 p-6 rounded-lg text-center max-w-md">
-                            <p class="font-bold">Lỗi video</p>
-                            <p class="text-xs mt-2 break-all">${item.src}</p>
-                        </div>`;
+                video.className = "max-w-full max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-2xl";
+
+                video.onloadstart = () => {
+                    slidesContainerEl.style.height = 'auto';
+                    slidesContainerEl.style.minHeight = '50vh';
                 };
-                video.load();
-                slide.appendChild(video);
+
+                video.onerror = () => {
+                    wrapper.innerHTML = `<div class="text-red-400 bg-black/80 p-6 rounded-lg text-center">Lỗi video: ${item.src}</div>`;
+                };
+
+                wrapper.appendChild(video);
+                slidesContainerEl.appendChild(wrapper);
             }
 
-            slidesContainerEl.appendChild(slide);
             slideIndexEl.textContent = `${currentSlideIndex + 1} / ${currentAlbumItems.length}`;
         }
         function nextSlide() {
