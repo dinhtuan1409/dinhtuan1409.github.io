@@ -235,9 +235,10 @@
 
             <h3 id="albumTitle" class="text-2xl font-semibold mb-4 text-center flex-shrink-0"></h3>
 
-            <div id="albumContent" class="relative w-full flex-grow flex flex-col items-center justify-center min-h-[500px] mb-4">
-                <div id="slidesContainer" class="w-full h-full min-h-[500px] relative overflow-hidden bg-black rounded-lg flex items-center justify-center">
+           <div id="albumContent" class="relative w-full flex-grow flex flex-col justify-center min-h-[60vh] md:min-h-[70vh] p-4">
+                <div id="slidesContainer" class="w-full h-full min-h-[60vh] md:min-h-[70vh] relative overflow-hidden bg-black rounded-lg flex items-center justify-center p-4">
                 </div>
+             
                 <!-- Nút prev/next và index giữ nguyên -->
       
 
@@ -277,6 +278,7 @@
                 title: "Album 1: Những Chuyến Đi",
                 items: [
                     { src: "video/video14.mp4", type: "video" },
+                    { src: "https://picsum.photos/800/600", type: "image" },
                     { src: "video/video13.mp4", type: "video" }, 
                     { src: "video/video8.mp4", type: "video" },
                     { src: "img/38.jpg", type: "image" }, 
@@ -419,11 +421,10 @@
         // -------------------------------------
 
         // HÀM HIỂN THỊ SLIDE
-        // HÀM HIỂN THỊ SLIDE (ĐÃ SỬA LỖI SIZING)
         function showSlide(n) {
             if (currentAlbumItems.length === 0) return;
             
-            // Xử lý lặp lại (looping)
+            // Xử lý vòng lặp
             if (n >= currentAlbumItems.length) {
                 currentSlideIndex = 0;
             } else if (n < 0) {
@@ -432,32 +433,34 @@
                 currentSlideIndex = n;
             }
             
-            // Dừng tất cả video đang chạy trước khi chuyển slide
+            // Dừng video cũ
             slidesContainerEl.querySelectorAll('video').forEach(video => {
                 video.pause();
             });
 
-            // Tạo slide mới
+            // Xóa slide cũ
+            slidesContainerEl.innerHTML = '';
+
             const item = currentAlbumItems[currentSlideIndex];
-            
-            slidesContainerEl.innerHTML = ''; // Xóa slide cũ
-            
             const slide = document.createElement('div');
-            // Thiết lập p-4 cho slide để hình ảnh/video không bị dính sát mép khung đen
-            slide.className = "absolute inset-0 flex items-center justify-center p-4";
-            
+            slide.className = "w-full h-full flex items-center justify-center p-4";
+
             if (item.type === 'image') {
                 const img = document.createElement('img');
                 img.src = item.src;
                 img.alt = 'Kỷ niệm';
-                img.className = "max-w-full max-h-full w-auto h-auto object-contain rounded";
+                img.className = "max-w-full max-h-full object-contain rounded-lg shadow-2xl";
+                
                 img.onerror = function() {
-                    slide.innerHTML = `<div class="text-white bg-red-600 p-4 rounded text-center">
-                        Lỗi tải ảnh: <br><code class="text-xs">${item.src}</code>
-                    </div>`;
+                    slide.innerHTML = `
+                        <div class="text-red-400 bg-black/80 p-6 rounded-lg text-center max-w-md">
+                            <p class="font-bold">Lỗi ảnh</p>
+                            <p class="text-xs mt-2 break-all">${item.src}</p>
+                        </div>`;
                 };
                 slide.appendChild(img);
-            } else if (item.type === 'video') {
+            } 
+            else if (item.type === 'video') {
                 const video = document.createElement('video');
                 video.src = item.src;
                 video.controls = true;
@@ -465,18 +468,20 @@
                 video.muted = true;
                 video.loop = true;
                 video.playsInline = true;
-                video.className = "max-w-full max-h-full w-auto h-auto object-contain rounded";
+                video.className = "max-w-full max-h-full object-contain rounded-lg shadow-2xl";
                 
                 video.onerror = function() {
-                    slide.innerHTML = `<div class="text-white bg-red-600 p-4 rounded text-center">
-                        Lỗi tải video: <br><code class="text-xs">${item.src}</code>
-                    </div>`;
+                    slide.innerHTML = `
+                        <div class="text-red-400 bg-black/80 p-6 rounded-lg text-center max-w-md">
+                            <p class="font-bold">Lỗi video</p>
+                            <p class="text-xs mt-2 break-all">${item.src}</p>
+                        </div>`;
                 };
-                
                 video.load();
                 slide.appendChild(video);
             }
-            // Cập nhật chỉ mục
+
+            slidesContainerEl.appendChild(slide);
             slideIndexEl.textContent = `${currentSlideIndex + 1} / ${currentAlbumItems.length}`;
         }
         function nextSlide() {
