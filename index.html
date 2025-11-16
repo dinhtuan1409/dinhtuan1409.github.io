@@ -270,7 +270,7 @@
     </section>
 
     <script>
-        /* Danh sách nội dung của từng album - Cấu trúc giữ nguyên */
+        /* Danh sách nội dung của từng album */
         const albumImages = {
             album1: {
                 title: "Album 1: Những Chuyến Đi",
@@ -347,7 +347,7 @@
         const albumTitleEl = document.getElementById("albumTitle");
         const closeGalleryBtn = document.getElementById("closeGalleryBtn");
         
-        // CÁC BIẾN MỚI CHO TRÌNH CHIẾU
+        // CÁC BIẾN CHO TRÌNH CHIẾU
         const slidesContainerEl = document.getElementById("slidesContainer");
         const nextBtn = document.getElementById("nextBtn");
         const prevBtn = document.getElementById("prevBtn");
@@ -414,7 +414,7 @@
         // -------------------------------------
 
         // -------------------------------------
-        // CÁC HÀM XỬ LÝ TRÌNH CHIẾU MỚI
+        // CÁC HÀM XỬ LÝ TRÌNH CHIẾU MỚI (Đã thêm check lỗi đường dẫn)
         // -------------------------------------
 
         // HÀM HIỂN THỊ SLIDE
@@ -449,6 +449,12 @@
                 img.src = item.src;
                 img.alt = 'Slide';
                 img.className = "max-w-full max-h-full object-contain rounded"; 
+                // XỬ LÝ LỖI: Nếu ảnh không tải được, hiện cảnh báo
+                img.onerror = function() {
+                    slide.innerHTML = `<div class="text-center text-white bg-red-600 p-4 rounded max-w-sm mx-auto">
+                        ❌ Lỗi: Không tìm thấy ảnh. Vui lòng kiểm tra đường dẫn file: <strong>${item.src}</strong>
+                    </div>`;
+                };
                 slide.appendChild(img);
             } else if (item.type === 'video') {
                 const video = document.createElement('video');
@@ -458,7 +464,15 @@
                 video.autoplay = true; 
                 video.loop = true;
                 video.className = "max-w-full max-h-full object-contain rounded";
+                // XỬ LÝ LỖI: Nếu video không tải được, hiện cảnh báo
+                video.addEventListener('error', function() {
+                    slide.innerHTML = `<div class="text-center text-white bg-red-600 p-4 rounded max-w-sm mx-auto">
+                        ❌ Lỗi: Không tải được video. Vui lòng kiểm tra đường dẫn file: <strong>${item.src}</strong>
+                    </div>`;
+                });
                 slide.appendChild(video);
+                // Cố gắng tải để kích hoạt lỗi (nếu có)
+                video.load(); 
             }
             
             slidesContainerEl.appendChild(slide);
@@ -475,7 +489,7 @@
             showSlide(currentSlideIndex - 1);
         }
 
-        // HÀM MỞ GALLERY ĐÃ ĐƯỢC THAY ĐỔI HOÀN TOÀN
+        // HÀM MỞ GALLERY
         function openGallery(albumId) {
             const data = albumImages[albumId];
             if (!data) return;
